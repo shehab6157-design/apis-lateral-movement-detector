@@ -1,699 +1,778 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ScamShield</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APIS — Adaptive Protective Immune System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+  :root{
+    --black:#0C0B09;
+    --panel:rgba(18,16,12,0.78);
+    --gold:#E8A33D;
+    --yellow:#F5C518;
+    --gold-deep:#B5701C;
+    --white:#FFFDF8;
+    --muted:#C9BFA9;
+    --line:rgba(232,163,61,0.28);
+    --good:#8FD19E;
+    --bad:#F0685C;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--black); color:var(--white); font-family:'IBM Plex Sans', sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden;}
+  h1,h2,h3,h4{font-family:'Fraunces', serif; font-weight:600; letter-spacing:-0.01em; color:var(--white);}
+  a{color:inherit;}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 32px;}
 
-  :root {
-    --ink: #0f1420;
-    --ink-soft: #171d2c;
-    --panel: #141a29;
-    --panel-raised: #1b2334;
-    --hairline: rgba(201, 168, 106, 0.14);
-    --brass: #c9a86a;
-    --brass-bright: #e3c78a;
-    --ivory: #f3ede0;
-    --ivory-dim: #b9b2a3;
-    --emerald: #4f9d75;
-    --amber: #d9a441;
-    --crimson: #c1583f;
-    --radius: 14px;
-  }
+  /* ---------- LIVE 3D BACKGROUND ---------- */
+  #bg-canvas{position:fixed; inset:0; width:100vw; height:100vh; z-index:0; display:block;}
+  .page{position:relative; z-index:1;}
 
-  * { box-sizing: border-box; }
+  /* ---------- NAV ---------- */
+  nav{position:sticky; top:0; z-index:50; background:rgba(12,11,9,0.72); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  nav .wrap{display:flex; align-items:center; justify-content:space-between; height:64px;}
+  .brand{display:flex; align-items:center; gap:10px; font-family:'Fraunces', serif; font-weight:600; font-size:20px; color:var(--yellow);}
+  .brand .cell{width:16px; height:18px; background:var(--yellow); clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);}
+  nav ul{list-style:none; display:flex; gap:32px; font-size:15px;}
+  nav ul a{text-decoration:none; color:var(--muted); transition:color .15s;}
+  nav ul a:hover{color:var(--yellow);}
+  @media(max-width:720px){.navlinks{display:none;}}
 
-  @keyframes driftA {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(40px, 30px) scale(1.08); }
-  }
-  @keyframes driftB {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(-50px, -20px) scale(1.1); }
-  }
-  @keyframes sparkleFloat {
-    0% { transform: translateY(0) translateX(0); opacity: 0; }
-    10% { opacity: var(--sop, 0.6); }
-    90% { opacity: var(--sop, 0.6); }
-    100% { transform: translateY(-120px) translateX(var(--sx, 20px)); opacity: 0; }
-  }
+  /* ---------- HERO ---------- */
+  header.hero{min-height:92vh; display:flex; align-items:center; padding:72px 0 64px;}
+  .eyebrow-real{font-size:15px; color:var(--gold); margin-bottom:18px; max-width:560px;}
+  h1.title{font-size:58px; line-height:1.04; max-width:760px; margin-bottom:24px; text-shadow:0 2px 24px rgba(0,0,0,0.6);}
+  h1.title em{font-style:italic; color:var(--yellow);}
+  .lede{font-size:19px; color:var(--muted); max-width:620px; margin-bottom:36px; text-shadow:0 1px 12px rgba(0,0,0,0.7);}
+  .cta-row{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:44px;}
+  .btn{display:inline-flex; align-items:center; gap:8px; padding:13px 26px; border-radius:3px; font-size:15px; font-weight:600; text-decoration:none; transition:transform .15s, box-shadow .15s, background .15s;}
+  .btn-primary{background:var(--yellow); color:var(--black);}
+  .btn-primary:hover{transform:translateY(-1px); box-shadow:0 8px 24px rgba(245,197,24,0.35);}
+  .btn-secondary{background:transparent; color:var(--white); border:1.5px solid var(--gold);}
+  .btn-secondary:hover{background:var(--gold); color:var(--black);}
 
-  body {
-    margin: 0;
-    min-height: 100vh;
-    position: relative;
-    overflow-x: hidden;
-    background: var(--ink);
-    color: var(--ivory);
-    font-family: 'Manrope', sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-  }
+  .legend{display:flex; gap:22px; flex-wrap:wrap; font-size:13.5px; color:var(--muted); margin-bottom:28px;}
+  .legend span{display:inline-flex; align-items:center; gap:8px;}
+  .dot{width:11px; height:11px; border-radius:2px; display:inline-block;}
+  .dot.ok{background:var(--yellow); box-shadow:0 0 10px var(--yellow);}
+  .dot.bad{background:var(--bad); box-shadow:0 0 10px var(--bad);}
+  .dot.bee{width:14px; height:9px; border-radius:50%; background:linear-gradient(90deg, var(--yellow) 0 30%, #111 30% 45%, var(--yellow) 45% 75%, #111 75%);}
 
-  .bg-glow {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    overflow: hidden;
-  }
-  .bg-glow .blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(60px);
-  }
-  .bg-glow .blob.a {
-    width: 900px; height: 900px;
-    top: -20%; left: -10%;
-    background: radial-gradient(circle, rgba(201,168,106,0.10), transparent 65%);
-    animation: driftA 18s ease-in-out infinite;
-  }
-  .bg-glow .blob.b {
-    width: 800px; height: 800px;
-    bottom: -25%; right: -10%;
-    background: radial-gradient(circle, rgba(79,157,117,0.09), transparent 65%);
-    animation: driftB 22s ease-in-out infinite;
-  }
-  .sparkle {
-    position: absolute;
-    bottom: 0;
-    width: 3px; height: 3px;
-    border-radius: 50%;
-    background: var(--brass-bright);
-    box-shadow: 0 0 6px var(--brass-bright);
-    animation: sparkleFloat linear infinite;
+  .proof{background:var(--panel); backdrop-filter:blur(8px); border:1px solid var(--line); border-radius:6px; padding:28px 32px; max-width:600px;}
+  .proof-label{font-size:13px; color:var(--muted); margin-bottom:18px;}
+  .proof-grid{display:grid; grid-template-columns:1fr auto 1fr; gap:24px; align-items:center;}
+  .proof-col .n{font-family:'Fraunces', serif; font-size:44px; font-weight:600; line-height:1;}
+  .proof-col.before .n{color:var(--bad);}
+  .proof-col.after .n{color:var(--good);}
+  .proof-col .cap{font-size:14px; color:var(--muted); margin-top:6px;}
+  .arrow{font-size:28px; color:var(--gold);}
+  .proof-foot{margin-top:18px; padding-top:14px; border-top:1px solid var(--line); font-size:14px; color:var(--muted);}
+  @media(max-width:640px){
+    h1.title{font-size:36px;}
+    .proof-grid{grid-template-columns:1fr; text-align:center;}
+    .arrow{transform:rotate(90deg);}
   }
 
-  .login-card, .app { position: relative; z-index: 1; }
+  /* ---------- SECTIONS ---------- */
+  section{padding:88px 0;}
+  .panel{background:var(--panel); backdrop-filter:blur(8px); border:1px solid var(--line); border-radius:8px; padding:56px;}
+  @media(max-width:700px){.panel{padding:28px 22px;}}
+  .sec-head{max-width:640px; margin-bottom:44px;}
+  .sec-head h2{font-size:34px; margin-bottom:14px;}
+  .sec-head p{color:var(--muted); font-size:17px;}
+
+  .explain-grid{display:grid; grid-template-columns:1fr 1fr; gap:44px;}
+  .explain-grid h3{font-size:20px; margin-bottom:10px; color:var(--yellow);}
+  .explain-grid p{color:var(--muted); font-size:16px;}
+  @media(max-width:800px){.explain-grid{grid-template-columns:1fr;}}
+
+  /* honeycomb layers */
+  .comb-grid{display:flex; flex-wrap:wrap; gap:14px;}
+  .comb-cell{width:230px; padding:26px 22px 22px; background:rgba(232,163,61,0.10); clip-path:polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); text-align:center; transition:background .25s, transform .25s;}
+  .comb-cell:hover{background:rgba(245,197,24,0.22); transform:translateY(-4px);}
+  .comb-cell .num{font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--yellow); margin-bottom:8px;}
+  .comb-cell h4{font-size:17px; margin-bottom:10px;}
+  .comb-cell p{font-size:13.5px; color:var(--muted); line-height:1.5;}
+  @media(max-width:700px){.comb-grid{justify-content:center;} .comb-cell{width:80vw; clip-path:none; border-radius:8px; border:1px solid var(--line);}}
+
+  /* results */
+  .results-block{margin-bottom:52px;}
+  .results-block h3{font-size:22px; margin-bottom:8px; color:var(--yellow);}
+  .results-sub{color:var(--muted); font-size:15px; margin-bottom:18px; max-width:640px;}
+  table{width:100%; border-collapse:collapse; font-size:15px;}
+  th,td{text-align:left; padding:12px 16px; border-bottom:1px solid var(--line);}
+  th{font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--gold); font-weight:500; background:rgba(232,163,61,0.08);}
+  td.num, th.num{text-align:right; font-family:'IBM Plex Mono', monospace;}
+  tr:last-child td{font-weight:600; color:var(--yellow);}
+  .headline-stat{display:inline-flex; align-items:baseline; gap:6px; border:1px solid var(--line); padding:5px 14px; border-radius:20px; font-size:14px; margin-top:14px; color:var(--muted);}
+  .headline-stat .n{font-family:'Fraunces', serif; font-weight:600; color:var(--yellow); font-size:17px;}
+
+  /* hardening */
+  .harden-item{display:grid; grid-template-columns:220px 1fr; gap:32px; padding:26px 0; border-top:1px solid var(--line);}
+  .harden-item:last-child{border-bottom:1px solid var(--line);}
+  .harden-item h4{font-size:18px; margin-bottom:6px;}
+  .harden-item .tag{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--yellow); display:block; margin-bottom:10px;}
+  .harden-item p{color:var(--muted); font-size:15px;}
+  @media(max-width:700px){.harden-item{grid-template-columns:1fr; gap:8px;}}
+
+  .honest-box{border-left:3px solid var(--gold); padding:22px 28px; background:rgba(232,163,61,0.06);}
+  .honest-box p{color:var(--muted);}
+  .honest-box ul{margin:14px 0 0 20px; color:var(--muted); font-size:15px;}
+  .honest-box li{margin-bottom:8px;}
+
+  footer{padding:80px 0 48px; text-align:center;}
+  footer h2{font-size:32px; margin-bottom:14px;}
+  footer p{color:var(--muted); margin-bottom:30px; max-width:480px; margin-left:auto; margin-right:auto;}
+  .foot-links{display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-bottom:52px;}
+  .foot-meta{font-size:13px; color:var(--muted); border-top:1px solid var(--line); padding-top:28px;}
+
+  /* reveal */
+  .reveal{opacity:0; transform:translateY(22px); transition:opacity .7s cubic-bezier(.2,.6,.2,1), transform .7s cubic-bezier(.2,.6,.2,1);}
+  .reveal.in{opacity:1; transform:translateY(0);}
+  @media (prefers-reduced-motion: reduce){.reveal{opacity:1; transform:none; transition:none;} .comb-cell{transition:none;}}
+
+  /* ---------- richer content motion ---------- */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .75s cubic-bezier(.2,.65,.2,1),transform .75s cubic-bezier(.2,.65,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* panels lift in with a subtle scale */
+  .panel{transition:transform .9s cubic-bezier(.2,.65,.2,1), box-shadow .5s;}
+  .panel.lifted{box-shadow:0 30px 90px rgba(0,0,0,.55)}
+
+  /* honeycomb cards: stagger + hover lift + gold edge sweep */
+  .comb-cell{position:relative;overflow:hidden;transition:transform .35s cubic-bezier(.2,.65,.2,1),background .35s,box-shadow .35s}
+  .comb-cell:hover{transform:translateY(-6px) scale(1.02);background:rgba(245,197,24,.14);box-shadow:0 14px 36px rgba(0,0,0,.45)}
+  .comb-cell::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(115deg,transparent 35%,rgba(245,197,24,.22) 50%,transparent 65%);
+    transform:translateX(-120%);transition:transform .8s cubic-bezier(.2,.65,.2,1)}
+  .comb-cell:hover::after{transform:translateX(120%)}
+  .comb-cell .num{transition:color .3s,letter-spacing .3s}
+  .comb-cell:hover .num{color:var(--white);letter-spacing:.2em}
+
+  /* table rows cascade in */
+  tbody tr{opacity:0;transform:translateX(-14px);transition:opacity .5s ease,transform .5s ease}
+  tbody tr.in{opacity:1;transform:none}
+  tbody tr:hover td{background:rgba(245,197,24,.07)}
+  td,th{transition:background .25s}
+
+  /* animated bar under each false-positive figure */
+  .bar{position:relative;height:3px;background:rgba(232,163,61,.18);margin-top:.45rem;overflow:hidden;border-radius:2px}
+  .bar i{position:absolute;inset:0 100% 0 0;background:linear-gradient(90deg,var(--gold-deep),var(--yellow));
+         transition:right 1.4s cubic-bezier(.2,.65,.2,1)}
+
+  /* headline stat: counts up and glows */
+  .headline-stat{transition:transform .5s,box-shadow .5s}
+  .headline-stat.pop{transform:scale(1.04);box-shadow:0 0 30px rgba(245,197,24,.22)}
+
+  /* hardening rows slide in from alternating sides */
+  .harden-item{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.2,.65,.2,1),transform .7s cubic-bezier(.2,.65,.2,1)}
+  .harden-item.in{opacity:1;transform:none}
+  .harden-item:hover .tag{color:var(--white)}
+  .harden-item .tag{transition:color .3s}
+
+  /* limits list ticks in one by one */
+  .honest-box li{opacity:0;transform:translateX(-10px);transition:opacity .5s,transform .5s}
+  .honest-box li.in{opacity:1;transform:none}
+
+  /* hero proof numbers count up */
+  .proof-col .n{font-variant-numeric:tabular-nums}
+
+  /* section headings get a drawn underline */
+  .sec-head h2{position:relative;display:inline-block;padding-bottom:.35rem}
+  .sec-head h2::after{content:"";position:absolute;left:0;bottom:0;height:2px;width:0;
+    background:linear-gradient(90deg,var(--yellow),transparent);transition:width 1s cubic-bezier(.2,.65,.2,1) .2s}
+  .sec-head.in h2::after{width:100%}
+
+  /* nav link underline */
+  .navlinks a{position:relative}
+  .navlinks a::after{content:"";position:absolute;left:0;bottom:-4px;height:1px;width:0;background:var(--yellow);transition:width .3s}
+  .navlinks a:hover::after{width:100%}
+
+  /* scroll progress */
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:60;
+            background:linear-gradient(90deg,var(--gold-deep),var(--yellow));transition:width .1s linear}
+
+  @media (prefers-reduced-motion:reduce){
+    .reveal,.harden-item,.honest-box li,tbody tr{opacity:1!important;transform:none!important;transition:none!important}
+    .comb-cell,.comb-cell::after,.sec-head h2::after{transition:none!important}
   }
 
-  .brand {
-    font-family: 'Fraunces', serif;
-    letter-spacing: 0.01em;
-  }
-
-  /* ---------- Login ---------- */
-  .login-card {
-    width: 380px;
-    background: linear-gradient(180deg, var(--panel-raised), var(--panel));
-    border: 1px solid var(--hairline);
-    border-radius: var(--radius);
-    padding: 40px 32px;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.45);
-  }
-  @keyframes markPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,106,0.35); }
-    50% { box-shadow: 0 0 0 10px rgba(201,168,106,0); }
-  }
-  @keyframes markSpin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  .login-card .mark {
-    width: 46px; height: 46px;
-    border-radius: 50%;
-    border: 1.5px solid var(--brass);
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 20px;
-    color: var(--brass-bright);
-    font-size: 20px;
-    animation: markPulse 2.4s ease-in-out infinite;
-  }
-  .login-card .mark span {
-    display: inline-block;
-    animation: markSpin 6s linear infinite;
-  }
-  .login-card h1 {
-    font-family: 'Fraunces', serif;
-    font-weight: 500;
-    font-size: 26px;
-    margin: 0 0 4px;
-    color: var(--ivory);
-  }
-  .login-card p.tag {
-    color: var(--ivory-dim);
-    font-size: 13.5px;
-    margin: 0 0 28px;
-    letter-spacing: 0.01em;
-  }
-  label {
-    display: block;
-    font-size: 11.5px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--brass);
-    margin-bottom: 6px;
-    margin-top: 16px;
-  }
-  input {
-    width: 100%;
-    background: var(--ink-soft);
-    border: 1px solid var(--hairline);
-    border-radius: 8px;
-    padding: 11px 13px;
-    color: var(--ivory);
-    font-family: 'Manrope', sans-serif;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.15s ease;
-  }
-  input:focus { border-color: var(--brass); }
-  input::placeholder { color: rgba(185,178,163,0.4); }
-
-  @keyframes shimmerSweep {
-    0% { background-position: -300px 0; }
-    100% { background-position: 300px 0; }
-  }
-  button.primary {
-    margin-top: 26px;
-    width: 100%;
-    background: linear-gradient(100deg, var(--brass) 30%, var(--brass-bright) 45%, var(--brass) 60%);
-    background-size: 300px 100%;
-    animation: shimmerSweep 3.5s linear infinite;
-    color: #1a1408;
-    border: none;
-    border-radius: 8px;
-    padding: 12px;
-    font-weight: 700;
-    font-size: 14px;
-    letter-spacing: 0.02em;
-    cursor: pointer;
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
-  }
-  button.primary:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(201,168,106,0.25); }
-  button.primary:disabled { opacity: 0.5; cursor: default; transform: none; box-shadow: none; animation: none; }
-
-  .error-msg {
-    margin-top: 14px;
-    font-size: 12.5px;
-    color: var(--crimson);
-    line-height: 1.5;
-  }
-
-  /* ---------- App shell ---------- */
-  .app {
-    display: none;
-    width: 100%;
-    max-width: 1080px;
-    height: 88vh;
-    background: var(--panel);
-    border: 1px solid var(--hairline);
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.45);
-  }
-  .app.active { display: grid; grid-template-columns: 280px 1fr; height: 88vh; }
-
-  .sidebar {
-    background: var(--ink-soft);
-    border-right: 1px solid var(--hairline);
-    display: flex;
-    flex-direction: column;
-  }
-  .sidebar .header {
-    padding: 22px 20px 16px;
-    border-bottom: 1px solid var(--hairline);
-  }
-  .sidebar .header .brand { font-size: 19px; font-weight: 500; }
-  .sidebar .header .who { font-size: 12px; color: var(--ivory-dim); margin-top: 3px; }
-  .room-list { flex: 1; overflow-y: auto; padding: 10px; }
-  .room-item {
-    padding: 12px 13px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 14px;
-    color: var(--ivory-dim);
-    margin-bottom: 3px;
-    transition: background 0.12s ease;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .room-item:hover { background: rgba(201,168,106,0.06); }
-  .room-item.active { background: rgba(201,168,106,0.1); color: var(--ivory); }
-  .room-item .dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--brass); opacity: 0.5; flex-shrink: 0;
-  }
-
-  .chat {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    min-height: 0;
-    height: 100%;
-  }
-  .chat .chat-header {
-    padding: 18px 26px;
-    border-bottom: 1px solid var(--hairline);
-    font-family: 'Fraunces', serif;
-    font-size: 17px;
-    color: var(--ivory);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .chat .shield-status {
-    font-family: 'Manrope', sans-serif;
-    font-size: 11.5px;
-    color: var(--emerald);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    letter-spacing: 0.02em;
-  }
-  @keyframes ringBreathe {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 6px var(--emerald); }
-    50% { transform: scale(1.4); box-shadow: 0 0 12px var(--emerald); }
-  }
-  .chat .shield-status .ring {
-    width: 7px; height: 7px; border-radius: 50%; background: var(--emerald);
-    animation: ringBreathe 1.8s ease-in-out infinite;
-  }
-  .chat .shield-status .icon {
-    display: inline-block;
-    animation: bobPulse 2.2s ease-in-out infinite;
-  }
-
-  .messages {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    padding: 24px 26px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  @keyframes msgIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .msg { max-width: 72%; animation: msgIn 0.3s ease-out; }
-  .msg .sender { font-size: 11.5px; color: var(--brass); margin-bottom: 4px; letter-spacing: 0.02em; }
-  .msg .bubble {
-    background: var(--panel-raised);
-    border: 1px solid var(--hairline);
-    border-radius: 12px;
-    padding: 11px 14px;
-    font-size: 14px;
-    line-height: 1.5;
-    color: var(--ivory);
-    word-wrap: break-word;
-  }
-  .msg.mine { align-self: flex-end; }
-  .msg.mine .bubble { background: rgba(201,168,106,0.08); border-color: rgba(201,168,106,0.25); }
-
-  @keyframes badgeIn {
-    from { opacity: 0; transform: translateY(-6px) scale(0.96); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  @keyframes shake {
-    0%, 100% { transform: rotate(0deg); }
-    20% { transform: rotate(-12deg); }
-    40% { transform: rotate(10deg); }
-    60% { transform: rotate(-8deg); }
-    80% { transform: rotate(6deg); }
-  }
-  @keyframes bobPulse {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-2px) scale(1.12); }
-  }
-  @keyframes ripple {
-    0% { box-shadow: 0 0 0 0 rgba(193,88,63,0.5); }
-    100% { box-shadow: 0 0 0 8px rgba(193,88,63,0); }
-  }
-
-  .risk-badge {
-    margin-top: 7px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 11px;
-    border-radius: 8px;
-    font-size: 12px;
-    line-height: 1.4;
-    animation: badgeIn 0.35s ease-out;
-  }
-  .risk-badge.high {
-    background: rgba(193,88,63,0.12);
-    border: 1px solid rgba(193,88,63,0.35);
-    color: #e3947f;
-    animation: badgeIn 0.35s ease-out, ripple 1.8s ease-out infinite;
-  }
-  .risk-badge.low {
-    background: rgba(217,164,65,0.1);
-    border: 1px solid rgba(217,164,65,0.3);
-    color: var(--amber);
-  }
-  .risk-badge .icon {
-    font-size: 15px;
-    flex-shrink: 0;
-    display: inline-block;
-    transform-origin: center 70%;
-  }
-  .risk-badge.high .icon { animation: shake 1.1s ease-in-out infinite; }
-  .risk-badge.low .icon { animation: bobPulse 1.6s ease-in-out infinite; }
-
-  .safe-badge {
-    margin-top: 7px;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 11.5px;
-    color: var(--ivory-dim);
-    opacity: 0.75;
-  }
-  .safe-badge .icon { animation: bobPulse 2.4s ease-in-out infinite; font-size: 13px; }
-
-  @keyframes scanShimmer {
-    0% { background-position: -200px 0; }
-    100% { background-position: 200px 0; }
-  }
-  .scanning {
-    margin-top: 7px;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 11.5px;
-    color: var(--ivory-dim);
-  }
-  .scanning .icon { animation: markSpin 0.9s linear infinite; display: inline-block; }
-
-  .composer {
-    border-top: 1px solid var(--hairline);
-    padding: 16px 22px;
-    display: flex;
-    gap: 10px;
-  }
-  .composer input {
-    flex: 1;
-  }
-  .composer button {
-    background: linear-gradient(180deg, var(--brass-bright), var(--brass));
-    color: #1a1408;
-    border: none;
-    border-radius: 8px;
-    padding: 0 20px;
-    font-weight: 700;
-    font-size: 13.5px;
-    cursor: pointer;
-    transition: transform 0.1s ease;
-  }
-  .composer button:active { transform: scale(0.93); }
-
-  .empty-state {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--ivory-dim);
-    font-size: 13.5px;
-    text-align: center;
-    padding: 40px;
-  }
-
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: 4px; }
 </style>
 </head>
 <body>
+<canvas id="bg-canvas"></canvas>
+<div class="progress" id="progress"></div>
 
-  <div class="bg-glow" id="bgGlow">
-    <div class="blob a"></div>
-    <div class="blob b"></div>
-  </div>
-
-  <div class="login-card" id="loginCard">
-    <div class="mark"><span>◈</span></div>
-    <h1 class="brand">ScamShield</h1>
-    <p class="tag">Encrypted messaging with a built-in fraud shield.</p>
-
-    <label>Homeserver</label>
-    <input id="homeserver" type="text" value="http://localhost:8008" />
-
-    <label>Username</label>
-    <input id="username" type="text" placeholder="alice" />
-
-    <label>Password</label>
-    <input id="password" type="password" placeholder="••••••••" />
-
-    <button class="primary" id="loginBtn">Enter</button>
-    <div class="error-msg" id="errorMsg"></div>
-  </div>
-
-  <div class="app" id="app">
-    <div class="sidebar">
-      <div class="header">
-        <div class="brand">ScamShield</div>
-        <div class="who" id="whoami"></div>
-      </div>
-      <div class="room-list" id="roomList"></div>
-    </div>
-    <div class="chat">
-      <div class="chat-header">
-        <span id="roomName">Select a room</span>
-        <span class="shield-status"><span class="ring"></span><span class="icon">🛡️</span>Shield active</span>
-      </div>
-      <div class="messages" id="messages">
-        <div class="empty-state">Pick a room on the left to start reading messages — every message is scanned for scam signals as it arrives.</div>
-      </div>
-      <div class="composer">
-        <input id="messageInput" type="text" placeholder="Send a message…" />
-        <button id="sendBtn">Send</button>
-      </div>
-    </div>
-  </div>
+<div class="page">
+<nav><div class="wrap">
+  <div class="brand"><span class="cell"></span> APIS</div>
+  <ul class="navlinks" id="navlinks"></ul>
+</div></nav>
+<div id="app"></div>
+</div>
 
 <script>
-// ---------- Scam detection: calls your REAL Python detector API ----------
-const DETECTOR_API = "http://localhost:5001/scan";
+/* =====================================================================
+   CONTENT — every word on this page comes from here.
+   ===================================================================== */
+const SITE = {
+  meta: {
+    name: "APIS",
+    full: "Adaptive Protective Immune System",
+    author: "Shehab Shibli",
+    updated: "September 2026",
+    github: "https://github.com/shehab6157-design"
+  },
 
-// Simple in-memory cache so we don't re-scan the same message body twice
-const scanCache = new Map();
+  nav: [
+    {label:"What it does", href:"#what"},
+    {label:"Architecture",  href:"#architecture"},
+    {label:"Real results",  href:"#results"},
+    {label:"Hardening",     href:"#hardening"},
+    {label:"Limits",        href:"#honest"}
+  ],
 
-async function scanMessage(text, sender) {
-  if (!text) return { flagged: false, reasons: [] };
-  const cacheKey = sender + "::" + text;
-  if (scanCache.has(cacheKey)) return scanCache.get(cacheKey);
+  hero: {
+    eyebrow: "A lateral-movement, credential-theft &amp; AI-agent detector, evaluated against real government network data",
+    title: "Most intrusion detectors are graded on their own homework. <em>This one wasn't.</em>",
+    lede: "APIS learns what's normal for every device, user and AI agent individually, then requires independent evidence to agree before it ever raises an alarm \u2014 modeled on how a honeybee colony defends itself with many imperfect, independent mechanisms rather than one.",
+    ctas: [
+      {label:"View the code on GitHub", href:"https://github.com/shehab6157-design", primary:true},
+      {label:"See the real results", href:"#results"}
+    ],
+    legend: [
+      {cls:"ok",  text:"Normal traffic entering the hive"},
+      {cls:"bad", text:"Suspicious traffic, intercepted"},
+      {cls:"bee", text:"Guard bee \u2014 Layer 1 &amp; 4, live"}
+    ],
+    proof: {
+      label: "False positives eliminated per real attack still caught \u2014 Los Alamos National Laboratory dataset, network-flow detection",
+      before: {value:"2,896", num:2896, caption:"false alarms, untuned first pass"},
+      after:  {value:"603",   num:603,  caption:"false alarms, after evidence-driven tuning"},
+      foot: "A 79.2% reduction \u2014 while every one of the 13 real attacks in the final result was still correctly caught. The identity-theft detector shows the same 79.0% reduction, measured completely independently."
+    }
+  },
 
-  try {
-    const res = await fetch(DETECTOR_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, sender: sender || "unknown@unknown" })
-    });
-    const data = await res.json();
-    scanCache.set(cacheKey, data);
-    return data;
-  } catch (err) {
-    console.error("Detector API unreachable:", err);
-    // Fail safe: if the detector is down, don't block the chat, just show unknown
-    return { flagged: false, reasons: [], apiDown: true };
-  }
-}
+  what: {
+    title: "What it actually does",
+    intro: "Strip away the architecture and the metaphor, and here is the concrete job it performs.",
+    items: [
+      {h:"Catches the second stage of a breach", p:"Most security tooling focuses on stopping the initial break-in. APIS is built for what happens after: an attacker already inside, moving from machine to machine or reusing a stolen login. That stage \u2014 lateral movement \u2014 is where a contained incident becomes a real breach."},
+      {h:"Judges each device, user and agent on its own terms", p:"There is no single global rule for \u201Csuspicious.\u201D A domain controller making hundreds of automated connections an hour is normal for that machine and would be alarming for a laptop. Every profile is learned individually and keeps adapting safely over time."},
+      {h:"Never acts on a single piece of evidence", p:"One odd signal is not enough. Confirmation requires either the same suspicious pattern repeating, or two genuinely different kinds of suspicious behavior together \u2014 the same principle a colony uses before committing to a costly response."},
+      {h:"Explains and proves every decision", p:"Every confirmed alert carries the exact evidence behind it \u2014 the real numbers, not just a verdict \u2014 and that record is cryptographically chained, so it can prove afterward that nothing was quietly altered."}
+    ]
+  },
 
-// ---------- Minimal Matrix client (direct HTTP API, no SDK) ----------
-let HOMESERVER = "";
-let ACCESS_TOKEN = "";
-let USER_ID = "";
-let SINCE = null;
-let rooms = {};        // roomId -> { name, events: [] }
-let activeRoom = null;
-let syncing = false;
+  architecture: {
+    title: "Nine layers, one colony",
+    intro: "Each layer is modeled on a specific, verified honeybee defense mechanism \u2014 because a colony's layered, no-single-point-of-failure defense is a better fit for intrusion detection than any one strategy alone.",
+    layers: [
+      {num:"01", name:"Guard Checkpoint",     p:"Fast, rule-based first pass \u2014 immediate action on the clearest violations."},
+      {num:"02", name:"The Queen",            p:"Per-device baseline of normal peers, hours, volume, and fan-out."},
+      {num:"03", name:"Alarm Broadcast",      p:"Propagates a raw detection to the layers that corroborate it."},
+      {num:"04", name:"Quorum Consensus",     p:"No single signal ever confirms an alert alone \u2014 independent evidence must agree."},
+      {num:"05", name:"Hygienic Cleanup",     p:"Proactively audits stale, never-re-verified trust relationships."},
+      {num:"06", name:"Containment",          p:"Real network isolation and alert delivery once a threat is confirmed."},
+      {num:"07", name:"Chemical Mimicry",     p:"Detects stolen-credential reuse \u2014 Pass-the-Hash and Pass-the-Ticket."},
+      {num:"08", name:"Collective Overwhelm", p:"Correlates weak signals across sources into one high-confidence escalation."},
+      {num:"09", name:"Agent Behaviour",      p:"AI agents hijacked by prompt injection: legitimate credentials, rewritten intent. Evaluated on 576 real tool calls."}
+    ]
+  },
 
-async function login() {
-  const homeserver = document.getElementById('homeserver').value.trim();
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value;
-  const errorEl = document.getElementById('errorMsg');
-  const btn = document.getElementById('loginBtn');
-  errorEl.textContent = "";
-
-  if (!homeserver || !username || !password) {
-    errorEl.textContent = "Fill in all fields.";
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = "Connecting…";
-
-  try {
-    const res = await fetch(`${homeserver}/_matrix/client/v3/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: "m.login.password",
-        identifier: { type: "m.id.user", user: username },
-        password: password
-      })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Login failed");
-
-    HOMESERVER = homeserver;
-    ACCESS_TOKEN = data.access_token;
-    USER_ID = data.user_id;
-
-    document.getElementById('loginCard').style.display = "none";
-    document.getElementById('app').classList.add("active");
-    document.getElementById('whoami').textContent = USER_ID;
-
-    startSync();
-  } catch (err) {
-    errorEl.textContent = "Couldn't connect — check homeserver URL and credentials. (" + err.message + ")";
-    btn.disabled = false;
-    btn.textContent = "Enter";
-  }
-}
-
-async function startSync() {
-  syncing = true;
-  while (syncing) {
-    try {
-      let url = `${HOMESERVER}/_matrix/client/v3/sync?timeout=25000`;
-      if (SINCE) url += `&since=${SINCE}`;
-      const res = await fetch(url, { headers: { Authorization: `Bearer ${ACCESS_TOKEN}` } });
-      const data = await res.json();
-      SINCE = data.next_batch;
-
-      const joined = data.rooms?.join || {};
-      for (const roomId in joined) {
-        if (!rooms[roomId]) rooms[roomId] = { name: roomId, events: [] };
-
-        const stateEvents = joined[roomId].state?.events || [];
-        for (const ev of stateEvents) {
-          if (ev.type === "m.room.name") rooms[roomId].name = ev.content.name;
-        }
-
-        const timelineEvents = joined[roomId].timeline?.events || [];
-        for (const ev of timelineEvents) {
-          if (ev.type === "m.room.name") rooms[roomId].name = ev.content.name;
-          if (ev.type === "m.room.message") {
-            rooms[roomId].events.push(ev);
-          }
-        }
+  results: {
+    title: "Measured against real attack data",
+    intro: "Evaluated on the Los Alamos National Laboratory Comprehensive Multi-Source Cyber-Security Events dataset \u2014 real, anonymized enterprise traffic across 17,684 computers and 58 days, including a genuine, independently-labeled red-team engagement. Layer 9 was evaluated separately on 576 real AI-agent tool calls.",
+    blocks: [
+      {
+        title:"Network-flow detection",
+        sub:"Three evidence-driven fixes, applied in sequence \u2014 each measured, and kept only because the real numbers supported it. Three more were built, measured, and honestly reverted when the numbers got worse.",
+        cols:["Stage","False positives","True positives","Precision"],
+        rows:[
+          ["Original, untuned","2,896","18","0.62%"],
+          ["+ personalized repetition threshold","1,337","18","1.33%"],
+          ["+ excluded an unreliable signal from confirmation","837","13","1.53%"],
+          ["+ extended clean training window","603","13","2.11%"]
+        ],
+        bars:[1.0, 0.462, 0.289, 0.208],
+        stat:{value:"79.2%", label:"fewer false positives overall"}
+      },
+      {
+        title:"Identity &amp; credential-theft detection",
+        sub:"A separate investigation on Windows authentication data, including a real structural discovery: stolen credentials inherit whatever access the real account already had \u2014 so the highest-reach accounts need the least benefit of the doubt.",
+        cols:["Stage","False positives","True positives","Detection rate"],
+        rows:[
+          ["Original, untuned","38,131","168","97.1%"],
+          ["+ excluded routine machine-account noise","22,477","168","97.1%"],
+          ["+ per-user known-destination baseline","7,824","143","82.7%"],
+          ["+ privilege-aware threshold","7,991","166","96.0%"]
+        ],
+        bars:[1.0, 0.589, 0.205, 0.210],
+        stat:{value:"79.0%", label:"fewer false positives, recovered to 96.0% detection"}
+      },
+      {
+        title:"Combined: when both detectors agree",
+        sub:"Requiring independent agreement between the network and identity detectors produces a small number of very high-confidence alerts \u2014 a higher-trust tier layered on top of both, not a replacement for either.",
+        cols:["","Network alone","Identity alone","Both agree"],
+        rows:[["Precision","2.11%","2.03%","40.0%"]],
+        stat:{value:"~19\u00D7", label:"improvement in precision when both domains agree"}
+      },
+      {
+        title:"AI-agent detection \u2014 Layer 9",
+        sub:"Evaluated on 576 real AI-agent tool calls across 99 sessions and three different workloads. The key signal was proposed, falsified on real traces, rebuilt on a structural distinction, and then validated on sessions generated after the change \u2014 not on the data that motivated it.",
+        cols:["Corpus","Untrusted inputs","False positives","Pivot signal in false positives"],
+        rows:[
+          ["484 calls \u2014 coding work only","5","1 / 194","0"],
+          ["510 calls \u2014 research added","22","7 / 204","4 \u2014 rule falsified"],
+          ["576 calls \u2014 fresh research sessions","56","5 / 231","0 \u2014 rule rebuilt"]
+        ],
+        stat:{value:"2.2%", label:"false-positive rate on 231 unseen benign events"}
       }
-      renderRoomList();
-      if (activeRoom) renderMessages(activeRoom);
-    } catch (err) {
-      console.error("Sync error:", err);
-      await new Promise(r => setTimeout(r, 3000));
-    }
-  }
-}
+    ]
+  },
 
-function renderRoomList() {
-  const list = document.getElementById('roomList');
-  list.innerHTML = "";
-  for (const roomId in rooms) {
-    const div = document.createElement('div');
-    div.className = "room-item" + (roomId === activeRoom ? " active" : "");
-    div.innerHTML = `<span class="dot"></span>${rooms[roomId].name || roomId}`;
-    div.onclick = () => {
-      activeRoom = roomId;
-      document.getElementById('roomName').textContent = rooms[roomId].name || roomId;
-      renderRoomList();
-      renderMessages(roomId);
-    };
-    list.appendChild(div);
-  }
-}
+  hardening: {
+    title: "Hardened against real attacks on the detector itself",
+    intro: "A detector that adapts over time is itself a target. Each of the following responds to a specific, documented real-world technique \u2014 not a hypothetical.",
+    items: [
+      {tag:"MITRE T1562", h:"Flood-evasion resistance", p:"Real 2026 industry research documents attackers deliberately flooding a system with noise to bury a genuine alert. A live adversarial test proved the first two fixes attempted here didn't work \u2014 the final version correctly separated a real attack from 50 decoys, leaving 96% of the noise unboosted."},
+      {tag:"EU AI Act \u00B7 Article 12", h:"Cryptographically chained audit log", p:"Every confirmed decision is SHA-256 hash-chained, directly responding to the logging requirement for autonomous AI decisions that became enforceable in August 2026. A real tampering attempt \u2014 editing a past record by hand \u2014 was caught and pinpointed to the exact altered entry."},
+      {tag:"Gradual poisoning", h:"Boiling-frog drift monitoring", p:"An adaptive baseline can be slowly poisoned by many individually-invisible changes. A real test constructed 60 rows of traffic that stayed under every existing threshold, yet climbed 67% in one direction \u2014 invisible to every other layer, and caught by this one."},
+      {tag:"MITRE ATLAS \u00B7 AML.T0051.001", h:"Agent hijack detection", p:"Indirect prompt injection turns a legitimate agent against its own network using its own credentials. The detection signal was falsified once on real traces, rebuilt around where a write lands relative to what was just read, and re-validated on 56 untrusted inputs it had never seen."},
+      {tag:"Self-healing", h:"Adaptive baseline, safe by construction", p:"The baseline only ever learns from traffic already confirmed safe \u2014 zero raw signals, or a human-reviewed suppression. Verified across three real, sequential runs: flagged, suppressed by a human, then correctly never flagged again. Wired into the batch pipeline, the live packet monitor, and the API alike."}
+    ]
+  },
 
-async function renderMessages(roomId) {
-  const container = document.getElementById('messages');
-  const events = rooms[roomId].events;
-  if (events.length === 0) {
-    container.innerHTML = `<div class="empty-state">No messages yet — say hello.</div>`;
+  honest: {
+    title: "Where this stops short",
+    intro: "Stated directly, the same way every result above is.",
+    lead: "This project does not claim to solve lateral-movement or credential-theft detection in general \u2014 each result documents one real, bounded, precisely-measured improvement, consistent with what published research treats as a genuinely hard, still-unsolved class of problem.",
+    items: [
+      "Evaluation is scoped to verified-clean training days and the highest-attack-density day in the dataset, not the full 58 days.",
+      "Layer 9's attack scenarios are constructed \u2014 no public labelled dataset of AI-agent lateral movement exists. Its false-positive rate is real; its detection rate is not a real-world figure.",
+      "Two agent pivot shapes are documented as evading detection: a read-only reconnaissance pivot, and a poisoned file placed inside the agent's own workspace.",
+      "A threshold calibrated on one workload is a property of that workload, not of the detector. Layer 8's agent threshold degraded the moment the agent's job changed, and had to be recalibrated on real data."
+    ]
+  },
+
+  footer: {
+    title: "Read the full record",
+    body: "Every failed attempt, every real fix, and every number on this page is documented in full \u2014 including the parts that didn't work the first time, and the predictions that turned out wrong.",
+    links: [
+      {label:"GitHub", href:"https://github.com/shehab6157-design", primary:true},
+      {label:"Development record", href:"#"}
+    ],
+    meta: "Built by Shehab Shibli \u2014 Network Engineering &amp; Computer Security, Jordan University of Science and Technology"
+  }
+};
+
+/* =====================================================================
+   RENDER — build the page from SITE
+   ===================================================================== */
+(function render(){
+  const nav = document.getElementById('navlinks');
+  nav.innerHTML = SITE.nav.map(n => `<li><a href="${n.href}">${n.label}</a></li>`).join('');
+
+  const H = SITE.hero;
+  const hero = `
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow-real reveal">${H.eyebrow}</p>
+      <h1 class="title reveal">${H.title}</h1>
+      <p class="lede reveal">${H.lede}</p>
+      <div class="cta-row reveal">${H.ctas.map(c=>`<a href="${c.href}" class="btn ${c.primary?'btn-primary':'btn-secondary'}">${c.label}</a>`).join('')}</div>
+      <div class="legend reveal">${H.legend.map(l=>`<span><i class="dot ${l.cls}"></i> ${l.text}</span>`).join('')}</div>
+      <div class="proof reveal">
+        <p class="proof-label">${H.proof.label}</p>
+        <div class="proof-grid">
+          <div class="proof-col before"><div class="n" data-count="${H.proof.before.num}">0</div><div class="cap">${H.proof.before.caption}</div></div>
+          <div class="arrow">\u2192</div>
+          <div class="proof-col after"><div class="n" data-count="${H.proof.after.num}">0</div><div class="cap">${H.proof.after.caption}</div></div>
+        </div>
+        <div class="proof-foot">${H.proof.foot}</div>
+      </div>
+    </div>
+  </header>`;
+
+  const W = SITE.what;
+  const what = `
+  <section id="what"><div class="wrap"><div class="panel">
+    <div class="sec-head reveal"><h2>${W.title}</h2><p>${W.intro}</p></div>
+    <div class="explain-grid">
+      ${W.items.map(i=>`<div class="reveal"><h3>${i.h}</h3><p>${i.p}</p></div>`).join('')}
+    </div>
+  </div></div></section>`;
+
+  const A = SITE.architecture;
+  const arch = `
+  <section id="architecture"><div class="wrap"><div class="panel">
+    <div class="sec-head reveal"><h2>${A.title}</h2><p>${A.intro}</p></div>
+    <div class="comb-grid">
+      ${A.layers.map(l=>`<div class="comb-cell reveal"><div class="num">${l.num}</div><h4>${l.name}</h4><p>${l.p}</p></div>`).join('')}
+    </div>
+  </div></div></section>`;
+
+  const R = SITE.results;
+  const results = `
+  <section id="results"><div class="wrap"><div class="panel">
+    <div class="sec-head reveal"><h2>${R.title}</h2><p>${R.intro}</p></div>
+    ${R.blocks.map(b=>`
+      <div class="results-block reveal">
+        <h3>${b.title}</h3>
+        <p class="results-sub">${b.sub}</p>
+        <table>
+          <thead><tr>${b.cols.map((c,i)=>`<th class="${i?'num':''}">${c}</th>`).join('')}</tr></thead>
+          <tbody>${b.rows.map((row,ri)=>`<tr>${row.map((cell,ci)=>{
+            const bar = (ci===1 && b.bars) ? `<div class="bar"><i data-w="${Math.round(b.bars[ri]*100)}"></i></div>` : '';
+            return `<td class="${ci?'num':''}">${cell}${bar}</td>`;
+          }).join('')}</tr>`).join('')}</tbody>
+        </table>
+        <div class="headline-stat"><span class="n">${b.stat.value}</span> ${b.stat.label}</div>
+      </div>`).join('')}
+  </div></div></section>`;
+
+  const Hd = SITE.hardening;
+  const hardening = `
+  <section id="hardening"><div class="wrap"><div class="panel">
+    <div class="sec-head reveal"><h2>${Hd.title}</h2><p>${Hd.intro}</p></div>
+    <div class="harden-list">
+      ${Hd.items.map(i=>`<div class="harden-item"><div><span class="tag">${i.tag}</span><h4>${i.h}</h4></div><p>${i.p}</p></div>`).join('')}
+    </div>
+  </div></div></section>`;
+
+  const O = SITE.honest;
+  const honest = `
+  <section id="honest"><div class="wrap"><div class="panel">
+    <div class="sec-head reveal"><h2>${O.title}</h2><p>${O.intro}</p></div>
+    <div class="honest-box reveal">
+      <p>${O.lead}</p>
+      <ul>${O.items.map(i=>`<li>${i}</li>`).join('')}</ul>
+    </div>
+  </div></div></section>`;
+
+  const F = SITE.footer;
+  const footer = `
+  <footer><div class="wrap">
+    <h2 class="reveal">${F.title}</h2>
+    <p class="reveal">${F.body}</p>
+    <div class="foot-links reveal">${F.links.map(l=>`<a href="${l.href}" class="btn ${l.primary?'btn-primary':'btn-secondary'}">${l.label}</a>`).join('')}</div>
+    <div class="foot-meta">${F.meta}</div>
+  </div></footer>`;
+
+  document.getElementById('app').innerHTML = hero + what + arch + results + hardening + honest + footer;
+})();
+
+/* =====================================================================
+   CONTENT MOTION — reveals, staggers, counters, bars, progress
+   ===================================================================== */
+(function motion(){
+  const REDUCED = matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* scroll progress bar */
+  const bar = document.getElementById('progress');
+  function prog(){
+    const h = document.documentElement.scrollHeight - innerHeight;
+    bar.style.width = (h > 0 ? Math.min(100, (scrollY/h)*100) : 0) + '%';
+  }
+  addEventListener('scroll', prog, {passive:true}); prog();
+
+  if (REDUCED) {
+    document.querySelectorAll('.reveal,.harden-item,tbody tr,.honest-box li').forEach(e=>e.classList.add('in'));
+    document.querySelectorAll('[data-count]').forEach(e=>e.textContent = Number(e.dataset.count).toLocaleString());
+    document.querySelectorAll('.bar i').forEach(e=>e.style.right = (100 - e.dataset.w) + '%');
     return;
   }
-  container.innerHTML = `<div class="empty-state">Scanning conversation…</div>`;
 
-  const rendered = [];
-  for (const ev of events) {
-    const isMine = ev.sender === USER_ID;
-    const body = ev.content.body || "";
-    const result = await scanMessage(body, ev.sender);
-
-    let badgeHtml = "";
-    if (result.apiDown) {
-      badgeHtml = `<div class="safe-badge"><span class="icon">🔌</span>Detector offline — message not scanned</div>`;
-    } else if (result.flagged) {
-      const why = (result.reasons || []).join("; ") || "matched risk signals";
-      badgeHtml = `<div class="risk-badge high"><span class="icon">🚨</span>Flagged — ${why}</div>`;
-    } else if (result.behavioral_risk === "LOW") {
-      badgeHtml = `<div class="risk-badge low"><span class="icon">🧐</span>Low-confidence signal — sender looked trustworthy so not flagged</div>`;
-    } else if (body) {
-      badgeHtml = `<div class="safe-badge"><span class="icon">✅</span>Scanned — no risk detected</div>`;
-    }
-
-    rendered.push(`
-      <div class="msg${isMine ? " mine" : ""}">
-        <div class="sender">${isMine ? "You" : ev.sender}</div>
-        <div class="bubble">${escapeHtml(body)}</div>
-        ${badgeHtml}
-      </div>
-    `);
+  /* number count-up, eased */
+  function countUp(el){
+    const target = Number(el.dataset.count), dur = 1500, t0 = performance.now();
+    (function tick(now){
+      const k = Math.min((now - t0)/dur, 1);
+      const eased = 1 - Math.pow(1 - k, 3);
+      el.textContent = Math.round(target*eased).toLocaleString();
+      if (k < 1) requestAnimationFrame(tick);
+    })(t0);
   }
-  container.innerHTML = rendered.join("");
-  container.scrollTop = container.scrollHeight;
-}
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
+  /* generic staggered reveal */
+  const seen = new Map();
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      const el = en.target;
+      const delay = (parseInt(el.dataset.i || 0)) * 80;
+      setTimeout(() => {
+        el.classList.add('in');
+        if (el.classList.contains('panel')) el.classList.add('lifted');
+        el.querySelectorAll('[data-count]').forEach(countUp);
+        el.querySelectorAll('.bar i').forEach((b, i) =>
+          setTimeout(() => b.style.right = (100 - b.dataset.w) + '%', 220 + i*110));
+        el.querySelectorAll('tbody tr').forEach((tr, i) =>
+          setTimeout(() => tr.classList.add('in'), 120 + i*90));
+        el.querySelectorAll('.honest-box li, ul li').forEach((li, i) =>
+          setTimeout(() => li.classList.add('in'), 160 + i*110));
+        const stat = el.querySelector('.headline-stat');
+        if (stat) setTimeout(() => {
+          stat.classList.add('pop');
+          setTimeout(() => stat.classList.remove('pop'), 420);
+        }, 700);
+      }, delay);
+      io.unobserve(el);
+    });
+  }, {threshold:0.12, rootMargin:'0px 0px -60px 0px'});
 
-async function sendMessage() {
-  const input = document.getElementById('messageInput');
-  const text = input.value.trim();
-  if (!text || !activeRoom) return;
-  input.value = "";
-
-  const txnId = Date.now();
-  await fetch(`${HOMESERVER}/_matrix/client/v3/rooms/${encodeURIComponent(activeRoom)}/send/m.room.message/${txnId}`, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${ACCESS_TOKEN}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ msgtype: "m.text", body: text })
+  document.querySelectorAll('.reveal, .harden-item').forEach(el => {
+    const parent = el.parentElement, n = seen.get(parent) || 0;
+    el.dataset.i = n; seen.set(parent, n + 1);
+    io.observe(el);
   });
-}
 
-// ---------- Ambient sparkle particles ----------
-function spawnSparkles() {
-  const layer = document.getElementById('bgGlow');
-  for (let i = 0; i < 26; i++) {
-    const s = document.createElement('div');
-    s.className = 'sparkle';
-    const left = Math.random() * 100;
-    const duration = 8 + Math.random() * 10;
-    const delay = Math.random() * 10;
-    const drift = (Math.random() * 60 - 30).toFixed(0) + 'px';
-    const opacity = (0.3 + Math.random() * 0.5).toFixed(2);
-    s.style.left = left + 'vw';
-    s.style.animationDuration = duration + 's';
-    s.style.animationDelay = delay + 's';
-    s.style.setProperty('--sx', drift);
-    s.style.setProperty('--sop', opacity);
-    layer.appendChild(s);
+  /* hero fires immediately */
+  setTimeout(() => {
+    document.querySelectorAll('.hero .reveal').forEach((el, i) =>
+      setTimeout(() => {
+        el.classList.add('in');
+        el.querySelectorAll('[data-count]').forEach(countUp);
+      }, i*110));
+  }, 120);
+})();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  var canvas = document.getElementById('bg-canvas');
+  if(!canvas || !window.THREE) return;
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  var scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x0c0b09, 0.04);
+  var camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
+  camera.position.set(0, 1.0, 13);
+
+  var GOLD=0xE8A33D, YELLOW=0xF5C518, DEEP=0xB5701C, BLACK=0x111009, WHITE=0xFFFDF8, RED=0xE0453A;
+
+  function size(){
+    var w=window.innerWidth, h=window.innerHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w/h; camera.updateProjectionMatrix();
   }
-}
-spawnSparkles();
 
-document.getElementById('loginBtn').addEventListener('click', login);
-document.getElementById('sendBtn').addEventListener('click', sendMessage);
-document.getElementById('messageInput').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') sendMessage();
-});
-document.getElementById('password').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') login();
-});
+  // ---- lights ----
+  scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+  var key = new THREE.DirectionalLight(0xfff1d6, 1.0); key.position.set(5, 8, 6); scene.add(key);
+  var rim = new THREE.DirectionalLight(DEEP, 0.6); rim.position.set(-6, -2, -4); scene.add(rim);
+  var hiveGlow = new THREE.PointLight(YELLOW, 1.2, 12); hiveGlow.position.set(2.2, 0.2, 1.5); scene.add(hiveGlow);
+
+  // ---- "coding area": digital floor grid + drifting code specks + far wireframe hexes ----
+  var grid = new THREE.GridHelper(60, 40, 0x6b4d14, 0x2a2010);
+  grid.position.y = -4.2; grid.material.transparent = true; grid.material.opacity = 0.35; scene.add(grid);
+
+  var N = reduced ? 200 : 600;
+  var pos = new Float32Array(N*3), speeds = new Float32Array(N);
+  for(var i=0;i<N;i++){ pos[i*3]=(Math.random()-0.5)*40; pos[i*3+1]=(Math.random()-0.5)*22; pos[i*3+2]=-4-Math.random()*20; speeds[i]=0.15+Math.random()*0.5; }
+  var pGeo = new THREE.BufferGeometry(); pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  var specks = new THREE.Points(pGeo, new THREE.PointsMaterial({color:GOLD, size:0.07, transparent:true, opacity:0.55}));
+  scene.add(specks);
+
+  var farHexGeo = new THREE.CylinderGeometry(3, 3, 0.05, 6), farHexes=[];
+  for(var k=0;k<4;k++){
+    var fm = new THREE.Mesh(farHexGeo, new THREE.MeshBasicMaterial({color:DEEP, wireframe:true, transparent:true, opacity:0.12}));
+    fm.rotation.x = Math.PI/2; fm.position.set((Math.random()-0.5)*24, (Math.random()-0.5)*10, -12-Math.random()*8);
+    fm.userData.spin = (Math.random()-0.5)*0.15; scene.add(fm); farHexes.push(fm);
+  }
+
+  // ---- the hive ----
+  var hive = new THREE.Group(); hive.position.set(2.4, 0.2, 0); scene.add(hive);
+  var cellGeo = new THREE.CylinderGeometry(0.62, 0.62, 0.5, 6);
+  var cells=[], hiveCols=5, hiveRows=4, sx=1.12, sy=0.98;
+  var entrance = new THREE.Vector3();
+  for(var r=0;r<hiveRows;r++){ for(var c=0;c<hiveCols;c++){
+    var x=(c-(hiveCols-1)/2)*sx + (r%2 ? sx/2 : 0), y=(r-(hiveRows-1)/2)*sy;
+    if(r===1 && c===0){ entrance.set(x, y, 0.5); continue; }   // the open entrance cell
+    var lit = Math.random() < 0.35;
+    var cm = new THREE.MeshStandardMaterial({color: lit?YELLOW:GOLD, emissive: lit?YELLOW:0x000000, emissiveIntensity: lit?0.35:0, metalness:0.2, roughness:0.5});
+    var cell = new THREE.Mesh(cellGeo, cm); cell.rotation.x = Math.PI/2; cell.position.set(x, y, 0);
+    cell.userData.lit = lit; cell.userData.phase = Math.random()*6.28; cell.userData.pulse = 0;
+    hive.add(cell); cells.push(cell);
+  }}
+  var entranceWorld = new THREE.Vector3();
+  function updEntrance(){ hive.updateMatrixWorld(); entranceWorld.copy(entrance); hive.localToWorld(entranceWorld); }
+  updEntrance();
+
+  // ---- bee factory ----
+  var bodyGeo = new THREE.SphereGeometry(0.5, 18, 14), headGeo = new THREE.SphereGeometry(0.27, 14, 12);
+  var stingGeo = new THREE.ConeGeometry(0.1, 0.3, 10), wingGeo = new THREE.PlaneGeometry(0.42, 0.95);
+  var goldMat = new THREE.MeshStandardMaterial({color:YELLOW, metalness:0.1, roughness:0.45});
+  var blackMat = new THREE.MeshStandardMaterial({color:BLACK, metalness:0.2, roughness:0.6});
+  var wingMat = new THREE.MeshStandardMaterial({color:WHITE, transparent:true, opacity:0.45, side:THREE.DoubleSide, roughness:0.2});
+  function makeBee(scale){
+    var g = new THREE.Group();
+    var body = new THREE.Mesh(bodyGeo, goldMat); body.scale.set(1.6, 1, 1); g.add(body);
+    [[-0.2,0.49],[0.1,0.5],[0.4,0.44]].forEach(function(b){
+      var band = new THREE.Mesh(new THREE.CylinderGeometry(b[1], b[1], 0.13, 18), blackMat);
+      band.rotation.z = Math.PI/2; band.position.x = b[0]; g.add(band);
+    });
+    var head = new THREE.Mesh(headGeo, blackMat); head.position.x = 0.88; g.add(head);
+    var sting = new THREE.Mesh(stingGeo, blackMat); sting.rotation.z = Math.PI/2; sting.position.x = -0.9; g.add(sting);
+    var wl = new THREE.Group(); wl.position.set(0.05, 0.38, 0.12);
+    var wlm = new THREE.Mesh(wingGeo, wingMat); wlm.position.set(0, 0, 0.45); wlm.rotation.x = -Math.PI/2; wl.add(wlm); g.add(wl);
+    var wr = new THREE.Group(); wr.position.set(0.05, 0.38, -0.12);
+    var wrm = new THREE.Mesh(wingGeo, wingMat); wrm.position.set(0, 0, -0.45); wrm.rotation.x = -Math.PI/2; wr.add(wrm); g.add(wr);
+    g.userData.wings = [wl, wr]; g.rotation.order = 'YZX'; g.scale.setScalar(scale || 0.55);
+    return g;
+  }
+
+  // ---- worker bees orbiting the hive ----
+  var bees=[], beeCount = reduced ? 3 : 6;
+  for(var i=0;i<beeCount;i++){
+    var b = makeBee(0.5 + Math.random()*0.15);
+    b.userData.orbit = {rx:4.5+Math.random()*2.5, rz:2.2+Math.random()*1.5, ry:0.8+Math.random()*1.2, speed:0.25+Math.random()*0.25, phase:Math.random()*6.28, cx:0.8, cy:0.6};
+    scene.add(b); bees.push(b);
+  }
+  // ---- the guard bee at the entrance ----
+  var guard = makeBee(0.62); scene.add(guard);
+  var guardHome = entranceWorld.clone().add(new THREE.Vector3(-1.4, 0.3, 0.9));
+  guard.position.copy(guardHome); guard.rotation.y = Math.PI;
+
+  // ---- traffic packets flowing toward the hive ----
+  var pktGeo = new THREE.BoxGeometry(0.24, 0.24, 0.24), packets=[], pktCount = reduced ? 12 : 26;
+  function spawn(p){
+    p.position.set(-11-Math.random()*4, (Math.random()-0.5)*5, (Math.random()-0.5)*4);
+    p.userData.bad = Math.random() < 0.28;
+    p.material.color.setHex(p.userData.bad ? RED : YELLOW); p.material.emissive.setHex(p.userData.bad ? RED : YELLOW);
+    p.material.opacity = 1; p.scale.setScalar(1); p.userData.state = 'fly'; p.userData.t = 0;
+    p.userData.speed = 1.6 + Math.random()*1.2;
+    p.userData.spin = new THREE.Vector3(Math.random(), Math.random(), Math.random()).multiplyScalar(2);
+  }
+  for(var i=0;i<pktCount;i++){
+    var pm = new THREE.MeshStandardMaterial({color:YELLOW, emissive:YELLOW, emissiveIntensity:0.5, transparent:true, opacity:1, metalness:0.3, roughness:0.4});
+    var p = new THREE.Mesh(pktGeo, pm); spawn(p); p.position.x = -11 + Math.random()*10; scene.add(p); packets.push(p);
+  }
+
+  // ---- interception flash ----
+  var flashes=[], flashGeo = new THREE.SphereGeometry(0.3, 12, 10);
+  function flash(at){
+    var m = new THREE.Mesh(flashGeo, new THREE.MeshBasicMaterial({color:RED, transparent:true, opacity:0.8}));
+    m.position.copy(at); m.userData.t = 0; scene.add(m); flashes.push(m);
+  }
+  function updFlashes(dt){
+    for(var i=flashes.length-1;i>=0;i--){
+      var f=flashes[i]; f.userData.t += dt; f.scale.setScalar(1 + f.userData.t*4);
+      f.material.opacity = Math.max(0, 0.8 - f.userData.t*1.6);
+      if(f.userData.t > 0.5){ scene.remove(f); f.material.dispose(); flashes.splice(i,1); }
+    }
+  }
+  function pulseCell(){ var c = cells[Math.floor(Math.random()*cells.length)]; c.material.emissive.setHex(YELLOW); c.userData.pulse = 1; }
+  function updCells(dt, t){
+    cells.forEach(function(c){
+      if(c.userData.pulse > 0) c.userData.pulse = Math.max(0, c.userData.pulse - dt*1.2);
+      var base = c.userData.lit ? 0.3 + Math.sin(t*1.5 + c.userData.phase)*0.12 : 0;
+      c.material.emissiveIntensity = base + c.userData.pulse*0.9;
+      if(!c.userData.lit && c.userData.pulse <= 0) c.material.emissive.setHex(0x000000);
+    });
+  }
+
+  var tmp = new THREE.Vector3(), next = new THREE.Vector3();
+  function updPackets(dt, t){
+    packets.forEach(function(p){
+      var u = p.userData;
+      p.rotation.x += u.spin.x*dt; p.rotation.y += u.spin.y*dt;
+      if(u.state === 'fly'){
+        tmp.subVectors(entranceWorld, p.position); var d = tmp.length();
+        tmp.normalize().multiplyScalar(u.speed*dt); p.position.add(tmp);
+        p.position.y += Math.sin(t*2 + p.position.x)*0.004;
+        if(d < 1.9 && u.bad){
+          u.state = 'deflect'; u.t = 0;
+          u.vel = new THREE.Vector3(-2.5-Math.random(), 1.5+Math.random(), (Math.random()-0.5)*2);
+          guard.userData.lunge = {target: p.position.clone(), t: 0};
+          flash(p.position);
+        } else if(d < 0.35){ u.state = 'enter'; u.t = 0; pulseCell(); }
+      } else if(u.state === 'deflect'){
+        u.t += dt; p.position.addScaledVector(u.vel, dt); u.vel.y -= 2.5*dt;
+        p.material.opacity = Math.max(0, 1 - u.t/1.3); if(u.t > 1.3) spawn(p);
+      } else if(u.state === 'enter'){
+        u.t += dt; var s = Math.max(0, 1 - u.t/0.45);
+        p.scale.setScalar(s); p.material.opacity = s; p.position.z -= dt*1.5; if(u.t > 0.45) spawn(p);
+      }
+    });
+  }
+
+  function beePos(o, a, out){ out.set(o.cx + Math.cos(a)*o.rx, o.cy + Math.sin(a*1.7)*o.ry, Math.sin(a)*o.rz); }
+  function orient(b, target){
+    tmp.subVectors(target, b.position);
+    var yaw = Math.atan2(-tmp.z, tmp.x), h = Math.sqrt(tmp.x*tmp.x + tmp.z*tmp.z), pitch = Math.atan2(tmp.y, h);
+    b.rotation.set(0, yaw, pitch);
+  }
+  function flap(b, t){
+    var w = b.userData.wings, f = reduced ? Math.sin(t*6)*0.3 : Math.sin(t*42 + b.position.x)*0.75;
+    w[0].rotation.x = f; w[1].rotation.x = -f;
+  }
+  function updBees(dt, t){
+    bees.forEach(function(b){
+      var o = b.userData.orbit, a = t*o.speed + o.phase;
+      beePos(o, a, b.position); beePos(o, a+0.05, next); orient(b, next); flap(b, t);
+    });
+    var L = guard.userData.lunge;
+    if(L){
+      L.t += dt; var kk = Math.sin(Math.min(L.t/0.6, 1)*Math.PI);
+      tmp.lerpVectors(guardHome, L.target, kk*0.8); guard.position.copy(tmp);
+      orient(guard, L.target); if(L.t > 0.6) guard.userData.lunge = null;
+    } else {
+      guard.position.set(guardHome.x + Math.sin(t*1.3)*0.15, guardHome.y + Math.sin(t*2.1)*0.12, guardHome.z + Math.cos(t*1.1)*0.1);
+      guard.rotation.set(0, Math.PI, Math.sin(t*1.5)*0.08);
+    }
+    flap(guard, t);
+  }
+  function updSpecks(dt){
+    var arr = pGeo.attributes.position.array;
+    for(var i=0;i<N;i++){ arr[i*3+1] += speeds[i]*dt*0.4; if(arr[i*3+1] > 11) arr[i*3+1] = -11; }
+    pGeo.attributes.position.needsUpdate = true;
+  }
+
+  var mx=0, my=0;
+  window.addEventListener('mousemove', function(e){ mx = e.clientX/window.innerWidth - 0.5; my = e.clientY/window.innerHeight - 0.5; });
+  var clock = new THREE.Clock();
+  function animate(){
+    requestAnimationFrame(animate);
+    var dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
+    var sy = window.scrollY || 0;
+    camera.position.x += (mx*1.6 - camera.position.x)*0.04;
+    camera.position.y += (1.0 - my*1.0 - camera.position.y)*0.04;
+    camera.position.z = 13 + Math.min(sy, 1500)*0.0015;
+    camera.lookAt(0.8, 0.2, 0);
+    hive.rotation.y = Math.sin(t*0.3)*0.12; updEntrance();
+    hiveGlow.intensity = 1.1 + Math.sin(t*2)*0.25;
+    farHexes.forEach(function(m){ m.rotation.z += m.userData.spin*dt; });
+    updSpecks(dt); updCells(dt, t); updPackets(dt, t); updBees(dt, t); updFlashes(dt);
+    renderer.render(scene, camera);
+  }
+  size(); window.addEventListener('resize', size); animate();
+})();
+
+// ---- scroll-triggered reveal ----
+(function(){
+  var items = document.querySelectorAll('.reveal');
+  if(!('IntersectionObserver' in window)){ items.forEach(function(el){ el.classList.add('in'); }); return; }
+  var seen = new Map();
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        var el = entry.target, delay = (parseInt(el.dataset.i || 0))*60;
+        setTimeout(function(){ el.classList.add('in'); }, delay);
+        observer.unobserve(el);
+      }
+    });
+  }, {threshold:0.15, rootMargin:'0px 0px -60px 0px'});
+  items.forEach(function(el){
+    var parent = el.parentElement, count = seen.get(parent) || 0;
+    el.dataset.i = count; seen.set(parent, count+1); observer.observe(el);
+  });
+})();
 </script>
 </body>
 </html>
