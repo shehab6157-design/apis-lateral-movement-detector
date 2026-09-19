@@ -1,0 +1,37 @@
+# --- LANL dataset extracts (huge, and not ours to redistribute) ---
+*.csv
+auth_baseline_traffic.txt
+auth_eval_events.txt
+my_auth_events.txt
+agent_events.txt
+
+# --- generated runtime state ---
+baseline.json
+baseline_real.json
+baseline_backup_*.json
+auth_baseline.json
+agent_baseline.json
+rolling_baseline_state.json
+adaptive_auth_baseline_state.json
+adaptive_agent_baseline_state.json
+quorum_state.json
+suppressions.json
+config.json
+audit_trail.jsonl
+
+# --- evaluation outputs (regenerate from the scripts) ---
+lanl_evaluation_results.json
+auth_evaluation_results.json
+
+# --- python ---
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# --- raw LANL archives (7GB+, and not ours to redistribute) ---
+*.gz
+
+# --- one-off patch scripts from development ---
+scratch/
