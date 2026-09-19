@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ScamShield</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #0f1420;
+    --ink-soft: #171d2c;
+    --panel: #141a29;
+    --panel-raised: #1b2334;
+    --hairline: rgba(201, 168, 106, 0.14);
+    --brass: #c9a86a;
+    --brass-bright: #e3c78a;
+    --ivory: #f3ede0;
+    --ivory-dim: #b9b2a3;
+    --emerald: #4f9d75;
+    --amber: #d9a441;
+    --crimson: #c1583f;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; }
+
+  @keyframes driftA {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(40px, 30px) scale(1.08); }
+  }
+  @keyframes driftB {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-50px, -20px) scale(1.1); }
+  }
+  @keyframes sparkleFloat {
+    0% { transform: translateY(0) translateX(0); opacity: 0; }
+    10% { opacity: var(--sop, 0.6); }
+    90% { opacity: var(--sop, 0.6); }
+    100% { transform: translateY(-120px) translateX(var(--sx, 20px)); opacity: 0; }
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    background: var(--ink);
+    color: var(--ivory);
+    font-family: 'Manrope', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .bg-glow {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .bg-glow .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+  }
+  .bg-glow .blob.a {
+    width: 900px; height: 900px;
+    top: -20%; left: -10%;
+    background: radial-gradient(circle, rgba(201,168,106,0.10), transparent 65%);
+    animation: driftA 18s ease-in-out infinite;
+  }
+  .bg-glow .blob.b {
+    width: 800px; height: 800px;
+    bottom: -25%; right: -10%;
+    background: radial-gradient(circle, rgba(79,157,117,0.09), transparent 65%);
+    animation: driftB 22s ease-in-out infinite;
+  }
+  .sparkle {
+    position: absolute;
+    bottom: 0;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: var(--brass-bright);
+    box-shadow: 0 0 6px var(--brass-bright);
+    animation: sparkleFloat linear infinite;
+  }
+
+  .login-card, .app { position: relative; z-index: 1; }
+  }
+
+  .brand {
+    font-family: 'Fraunces', serif;
+    letter-spacing: 0.01em;
+  }
+
+  /* ---------- Login ---------- */
+  .login-card {
+    width: 380px;
+    background: linear-gradient(180deg, var(--panel-raised), var(--panel));
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    padding: 40px 32px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+  }
+  @keyframes markPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,106,0.35); }
+    50% { box-shadow: 0 0 0 10px rgba(201,168,106,0); }
+  }
+  @keyframes markSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .login-card .mark {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 1.5px solid var(--brass);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
+    color: var(--brass-bright);
+    font-size: 20px;
+    animation: markPulse 2.4s ease-in-out infinite;
+  }
+  .login-card .mark span {
+    display: inline-block;
+    animation: markSpin 6s linear infinite;
+  }
+  .login-card h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 26px;
+    margin: 0 0 4px;
+    color: var(--ivory);
+  }
+  .login-card p.tag {
+    color: var(--ivory-dim);
+    font-size: 13.5px;
+    margin: 0 0 28px;
+    letter-spacing: 0.01em;
+  }
+  label {
+    display: block;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--brass);
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+  input {
+    width: 100%;
+    background: var(--ink-soft);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 11px 13px;
+    color: var(--ivory);
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  input:focus { border-color: var(--brass); }
+  input::placeholder { color: rgba(185,178,163,0.4); }
+
+  @keyframes shimmerSweep {
+    0% { background-position: -300px 0; }
+    100% { background-position: 300px 0; }
+  }
+  button.primary {
+    margin-top: 26px;
+    width: 100%;
+    background: linear-gradient(100deg, var(--brass) 30%, var(--brass-bright) 45%, var(--brass) 60%);
+    background-size: 300px 100%;
+    animation: shimmerSweep 3.5s linear infinite;
+    color: #1a1408;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  button.primary:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(201,168,106,0.25); }
+  button.primary:disabled { opacity: 0.5; cursor: default; transform: none; box-shadow: none; animation: none; }
+
+  .error-msg {
+    margin-top: 14px;
+    font-size: 12.5px;
+    color: var(--crimson);
+    line-height: 1.5;
+  }
+
+  /* ---------- App shell ---------- */
+  .app {
+    display: none;
+    width: 100%;
+    max-width: 1080px;
+    height: 88vh;
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+  }
+  .app.active { display: grid; grid-template-columns: 280px 1fr; height: 88vh; }
+
+  .sidebar {
+    background: var(--ink-soft);
+    border-right: 1px solid var(--hairline);
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar .header {
+    padding: 22px 20px 16px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .sidebar .header .brand { font-size: 19px; font-weight: 500; }
+  .sidebar .header .who { font-size: 12px; color: var(--ivory-dim); margin-top: 3px; }
+  .room-list { flex: 1; overflow-y: auto; padding: 10px; }
+  .room-item {
+    padding: 12px 13px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--ivory-dim);
+    margin-bottom: 3px;
+    transition: background 0.12s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .room-item:hover { background: rgba(201,168,106,0.06); }
+  .room-item.active { background: rgba(201,168,106,0.1); color: var(--ivory); }
+  .room-item .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--brass); opacity: 0.5; flex-shrink: 0;
+  }
+
+  .chat {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+  }
+  .chat .chat-header {
+    padding: 18px 26px;
+    border-bottom: 1px solid var(--hairline);
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    color: var(--ivory);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .chat .shield-status {
+    font-family: 'Manrope', sans-serif;
+    font-size: 11.5px;
+    color: var(--emerald);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.02em;
+  }
+  @keyframes ringBreathe {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 6px var(--emerald); }
+    50% { transform: scale(1.4); box-shadow: 0 0 12px var(--emerald); }
+  }
+  .chat .shield-status .ring {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--emerald);
+    animation: ringBreathe 1.8s ease-in-out infinite;
+  }
+  .chat .shield-status .icon {
+    display: inline-block;
+    animation: bobPulse 2.2s ease-in-out infinite;
+  }
+
+  .messages {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 24px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .msg { max-width: 72%; animation: msgIn 0.3s ease-out; }
+  .msg .sender { font-size: 11.5px; color: var(--brass); margin-bottom: 4px; letter-spacing: 0.02em; }
+  .msg .bubble {
+    background: var(--panel-raised);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    padding: 11px 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ivory);
+    word-wrap: break-word;
+  }
+  .msg.mine { align-self: flex-end; }
+  .msg.mine .bubble { background: rgba(201,168,106,0.08); border-color: rgba(201,168,106,0.25); }
+
+  @keyframes badgeIn {
+    from { opacity: 0; transform: translateY(-6px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: rotate(0deg); }
+    20% { transform: rotate(-12deg); }
+    40% { transform: rotate(10deg); }
+    60% { transform: rotate(-8deg); }
+    80% { transform: rotate(6deg); }
+  }
+  @keyframes bobPulse {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-2px) scale(1.12); }
+  }
+  @keyframes ripple {
+    0% { box-shadow: 0 0 0 0 rgba(193,88,63,0.5); }
+    100% { box-shadow: 0 0 0 8px rgba(193,88,63,0); }
+  }
+
+  .risk-badge {
+    margin-top: 7px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 11px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.4;
+    animation: badgeIn 0.35s ease-out;
+  }
+  .risk-badge.high {
+    background: rgba(193,88,63,0.12);
+    border: 1px solid rgba(193,88,63,0.35);
+    color: #e3947f;
+    animation: badgeIn 0.35s ease-out, ripple 1.8s ease-out infinite;
+  }
+  .risk-badge.low {
+    background: rgba(217,164,65,0.1);
+    border: 1px solid rgba(217,164,65,0.3);
+    color: var(--amber);
+  }
+  .risk-badge .icon {
+    font-size: 15px;
+    flex-shrink: 0;
+    display: inline-block;
+    transform-origin: center 70%;
+  }
+  .risk-badge.high .icon { animation: shake 1.1s ease-in-out infinite; }
+  .risk-badge.low .icon { animation: bobPulse 1.6s ease-in-out infinite; }
+
+  .safe-badge {
+    margin-top: 7px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11.5px;
+    color: var(--ivory-dim);
+    opacity: 0.75;
+  }
+  .safe-badge .icon { animation: bobPulse 2.4s ease-in-out infinite; font-size: 13px; }
+
+  @keyframes scanShimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: 200px 0; }
+  }
+  .scanning {
+    margin-top: 7px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11.5px;
+    color: var(--ivory-dim);
+  }
+  .scanning .icon { animation: markSpin 0.9s linear infinite; display: inline-block; }
+
+  .composer {
+    border-top: 1px solid var(--hairline);
+    padding: 16px 22px;
+    display: flex;
+    gap: 10px;
+  }
+  .composer input {
+    flex: 1;
+  }
+  .composer button {
+    background: linear-gradient(180deg, var(--brass-bright), var(--brass));
+    color: #1a1408;
+    border: none;
+    border-radius: 8px;
+    padding: 0 20px;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+  .composer button:active { transform: scale(0.93); }
+
+  .empty-state {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ivory-dim);
+    font-size: 13.5px;
+    text-align: center;
+    padding: 40px;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+  <div class="bg-glow" id="bgGlow">
+    <div class="blob a"></div>
+    <div class="blob b"></div>
+  </div>
+
+  <div class="login-card" id="loginCard">
+    <div class="mark"><span>◈</span></div>
+    <h1 class="brand">ScamShield</h1>
+    <p class="tag">Encrypted messaging with a built-in fraud shield.</p>
+
+    <label>Homeserver</label>
+    <input id="homeserver" type="text" value="http://localhost:8008" />
+
+    <label>Username</label>
+    <input id="username" type="text" placeholder="alice" />
+
+    <label>Password</label>
+    <input id="password" type="password" placeholder="••••••••" />
+
+    <button class="primary" id="loginBtn">Enter</button>
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+
+  <div class="app" id="app">
+    <div class="sidebar">
+      <div class="header">
+        <div class="brand">ScamShield</div>
+        <div class="who" id="whoami"></div>
+      </div>
+      <div class="room-list" id="roomList"></div>
+    </div>
+    <div class="chat">
+      <div class="chat-header">
+        <span id="roomName">Select a room</span>
+        <span class="shield-status"><span class="ring"></span><span class="icon">🛡️</span>Shield active</span>
+      </div>
+      <div class="messages" id="messages">
+        <div class="empty-state">Pick a room on the left to start reading messages — every message is scanned for scam signals as it arrives.</div>
+      </div>
+      <div class="composer">
+        <input id="messageInput" type="text" placeholder="Send a message…" />
+        <button id="sendBtn">Send</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ---------- Scam detection: calls your REAL Python detector API ----------
+const DETECTOR_API = "http://localhost:5001/scan";
+
+// Simple in-memory cache so we don't re-scan the same message body twice
+const scanCache = new Map();
+
+async function scanMessage(text, sender) {
+  if (!text) return { flagged: false, reasons: [] };
+  const cacheKey = sender + "::" + text;
+  if (scanCache.has(cacheKey)) return scanCache.get(cacheKey);
+
+  try {
+    const res = await fetch(DETECTOR_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, sender: sender || "unknown@unknown" })
+    });
+    const data = await res.json();
+    scanCache.set(cacheKey, data);
+    return data;
+  } catch (err) {
+    console.error("Detector API unreachable:", err);
+    // Fail safe: if the detector is down, don't block the chat, just show unknown
+    return { flagged: false, reasons: [], apiDown: true };
+  }
+}
+
+// ---------- Minimal Matrix client (direct HTTP API, no SDK) ----------
+let HOMESERVER = "";
+let ACCESS_TOKEN = "";
+let USER_ID = "";
+let SINCE = null;
+let rooms = {};        // roomId -> { name, events: [] }
+let activeRoom = null;
+let syncing = false;
+
+async function login() {
+  const homeserver = document.getElementById('homeserver').value.trim();
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const errorEl = document.getElementById('errorMsg');
+  const btn = document.getElementById('loginBtn');
+  errorEl.textContent = "";
+
+  if (!homeserver || !username || !password) {
+    errorEl.textContent = "Fill in all fields.";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Connecting…";
+
+  try {
+    const res = await fetch(`${homeserver}/_matrix/client/v3/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "m.login.password",
+        identifier: { type: "m.id.user", user: username },
+        password: password
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Login failed");
+
+    HOMESERVER = homeserver;
+    ACCESS_TOKEN = data.access_token;
+    USER_ID = data.user_id;
+
+    document.getElementById('loginCard').style.display = "none";
+    document.getElementById('app').classList.add("active");
+    document.getElementById('whoami').textContent = USER_ID;
+
+    startSync();
+  } catch (err) {
+    errorEl.textContent = "Couldn't connect — check homeserver URL and credentials. (" + err.message + ")";
+    btn.disabled = false;
+    btn.textContent = "Enter";
+  }
+}
+
+async function startSync() {
+  syncing = true;
+  while (syncing) {
+    try {
+      let url = `${HOMESERVER}/_matrix/client/v3/sync?timeout=25000`;
+      if (SINCE) url += `&since=${SINCE}`;
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${ACCESS_TOKEN}` } });
+      const data = await res.json();
+      SINCE = data.next_batch;
+
+      const joined = data.rooms?.join || {};
+      for (const roomId in joined) {
+        if (!rooms[roomId]) rooms[roomId] = { name: roomId, events: [] };
+
+        const stateEvents = joined[roomId].state?.events || [];
+        for (const ev of stateEvents) {
+          if (ev.type === "m.room.name") rooms[roomId].name = ev.content.name;
+        }
+
+        const timelineEvents = joined[roomId].timeline?.events || [];
+        for (const ev of timelineEvents) {
+          if (ev.type === "m.room.name") rooms[roomId].name = ev.content.name;
+          if (ev.type === "m.room.message") {
+            rooms[roomId].events.push(ev);
+          }
+        }
+      }
+      renderRoomList();
+      if (activeRoom) renderMessages(activeRoom);
+    } catch (err) {
+      console.error("Sync error:", err);
+      await new Promise(r => setTimeout(r, 3000));
+    }
+  }
+}
+
+function renderRoomList() {
+  const list = document.getElementById('roomList');
+  list.innerHTML = "";
+  for (const roomId in rooms) {
+    const div = document.createElement('div');
+    div.className = "room-item" + (roomId === activeRoom ? " active" : "");
+    div.innerHTML = `<span class="dot"></span>${rooms[roomId].name || roomId}`;
+    div.onclick = () => {
+      activeRoom = roomId;
+      document.getElementById('roomName').textContent = rooms[roomId].name || roomId;
+      renderRoomList();
+      renderMessages(roomId);
+    };
+    list.appendChild(div);
+  }
+}
+
+async function renderMessages(roomId) {
+  const container = document.getElementById('messages');
+  const events = rooms[roomId].events;
+  if (events.length === 0) {
+    container.innerHTML = `<div class="empty-state">No messages yet — say hello.</div>`;
+    return;
+  }
+  container.innerHTML = `<div class="empty-state">Scanning conversation…</div>`;
+
+  const rendered = [];
+  for (const ev of events) {
+    const isMine = ev.sender === USER_ID;
+    const body = ev.content.body || "";
+    const result = await scanMessage(body, ev.sender);
+
+    let badgeHtml = "";
+    if (result.apiDown) {
+      badgeHtml = `<div class="safe-badge"><span class="icon">🔌</span>Detector offline — message not scanned</div>`;
+    } else if (result.flagged) {
+      const why = (result.reasons || []).join("; ") || "matched risk signals";
+      badgeHtml = `<div class="risk-badge high"><span class="icon">🚨</span>Flagged — ${why}</div>`;
+    } else if (result.behavioral_risk === "LOW") {
+      badgeHtml = `<div class="risk-badge low"><span class="icon">🧐</span>Low-confidence signal — sender looked trustworthy so not flagged</div>`;
+    } else if (body) {
+      badgeHtml = `<div class="safe-badge"><span class="icon">✅</span>Scanned — no risk detected</div>`;
+    }
+
+    rendered.push(`
+      <div class="msg${isMine ? " mine" : ""}">
+        <div class="sender">${isMine ? "You" : ev.sender}</div>
+        <div class="bubble">${escapeHtml(body)}</div>
+        ${badgeHtml}
+      </div>
+    `);
+  }
+  container.innerHTML = rendered.join("");
+  container.scrollTop = container.scrollHeight;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('messageInput');
+  const text = input.value.trim();
+  if (!text || !activeRoom) return;
+  input.value = "";
+
+  const txnId = Date.now();
+  await fetch(`${HOMESERVER}/_matrix/client/v3/rooms/${encodeURIComponent(activeRoom)}/send/m.room.message/${txnId}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${ACCESS_TOKEN}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ msgtype: "m.text", body: text })
+  });
+}
+
+// ---------- Ambient sparkle particles ----------
+function spawnSparkles() {
+  const layer = document.getElementById('bgGlow');
+  for (let i = 0; i < 26; i++) {
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    const left = Math.random() * 100;
+    const duration = 8 + Math.random() * 10;
+    const delay = Math.random() * 10;
+    const drift = (Math.random() * 60 - 30).toFixed(0) + 'px';
+    const opacity = (0.3 + Math.random() * 0.5).toFixed(2);
+    s.style.left = left + 'vw';
+    s.style.animationDuration = duration + 's';
+    s.style.animationDelay = delay + 's';
+    s.style.setProperty('--sx', drift);
+    s.style.setProperty('--sop', opacity);
+    layer.appendChild(s);
+  }
+}
+spawnSparkles();
+
+document.getElementById('loginBtn').addEventListener('click', login);
+document.getElementById('sendBtn').addEventListener('click', sendMessage);
+document.getElementById('messageInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') sendMessage();
+});
+document.getElementById('password').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') login();
+});
+</script>
+</body>
+</html>
