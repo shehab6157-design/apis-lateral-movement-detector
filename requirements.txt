@@ -1,0 +1,28 @@
+# APIS - Adaptive Protective Immune System
+# Python 3.9 or newer.
+#
+#   pip install -r requirements.txt
+#
+# The detection layers themselves use only the Python standard library.
+# Everything below supports the test suite, the API service, and the
+# optional live-capture and statistical-modelling paths.
+
+# --- test suite (231 tests) ---
+pytest>=7.0
+
+# --- REST API service: api_server.py ---
+fastapi>=0.110
+uvicorn>=0.27
+pydantic>=2.0
+httpx>=0.24          # required by fastapi.testclient in test_api_server.py
+
+# --- live packet capture: live_monitor.py, capture.py ---
+# Needs administrator/root privileges and Npcap on Windows.
+scapy>=2.5
+
+# --- optional, only used by one experimental baseline path ---
+# baseline.py can fit a Gaussian mixture to byte-volume distributions.
+# It falls back to simpler statistics automatically if these are absent,
+# so the core system runs fine without them.
+numpy>=1.24
+scikit-learn>=1.3
