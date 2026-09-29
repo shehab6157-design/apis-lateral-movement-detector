@@ -1,5 +1,7 @@
 # APIS — Adaptive Protective Immune System
 
+[![tests](https://github.com/shehab6157-design/apis-lateral-movement-detector/actions/workflows/tests.yml/badge.svg)](https://github.com/shehab6157-design/apis-lateral-movement-detector/actions/workflows/tests.yml) ![license](https://img.shields.io/badge/license-MIT-blue) ![python](https://img.shields.io/badge/python-3.9%2B-blue)
+
 A lateral-movement, credential-theft and AI-agent detector, evaluated against **real
 government network data** rather than synthetic traffic.
 
