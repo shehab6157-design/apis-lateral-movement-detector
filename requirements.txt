@@ -7,7 +7,7 @@
 # Everything below supports the test suite, the API service, and the
 # optional live-capture and statistical-modelling paths.
 
-# --- test suite (231 tests) ---
+# --- test suite (236 tests) ---
 pytest>=7.0
 
 # --- REST API service: api_server.py ---
