@@ -213,7 +213,7 @@ python -m pytest test_apis.py test_adaptive_integration.py test_auth_detector.py
   test_agent_attack_scenarios.py test_live_monitor_adaptive.py -q
 ```
 
-**231 tests**, including adversarial scenarios and tests that assert the system's
+**236 tests**, including adversarial scenarios and tests that assert the system's
 *documented failures* — so a future change that silently breaks detection is caught.
 
 ---
