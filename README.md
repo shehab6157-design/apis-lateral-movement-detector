@@ -29,7 +29,8 @@ reverted when the numbers got worse.
 | + unreliable signal excluded from confirmation | 837 | 13 | 1.53% |
 | + extended clean training window | **603** | 13 | **2.11%** |
 
-**79.2% fewer false positives**, with every real attack in the final result still caught.
+**79.2% fewer false positives.** The trade-off is stated plainly: correct detections went from 18 to 13, while
+precision more than tripled (0.62% → 2.11%).
 
 ### Identity and credential-theft detection
 
@@ -99,7 +100,8 @@ Together they are extremely hard to walk past.
 That is a better model for intrusion detection than any single clever rule — and it
 produces one hard architectural constraint that runs through the whole system:
 
-> **No single signal is ever actionable on its own.**
+> **No single anomaly signal is ever actionable on its own.**
+> (The only exception is Layer 1's fixed guard rules, which need no baseline.)
 
 Confirmation requires either the same suspicious pattern repeating, or two genuinely
 different kinds of suspicious behaviour occurring together.
@@ -227,6 +229,8 @@ in production.
 **Scope of evaluation**
 - Scoped to verified-clean training days and the highest-attack-density day of the
   dataset, not all 58 days.
+- Network-flow extraction is scoped to the ~305 computers that appear in any labelled
+  red-team event, not all 17,684 computers in the dataset.
 - 2.11% precision is a large improvement over 0.62%, not a solved problem. Published
   research treats lateral-movement detection as a genuinely hard, open class of
   problem, and these numbers are consistent with that.
@@ -278,5 +282,5 @@ demonstrate that it works; they do not reproduce the numbers above.
 ## Built by
 
 **Shehab Shibli** — B.Sc. Network Engineering and Computer Security
-[GitHub](https://github.com/shehab6157-design) ·
+[Portfolio](https://shehab6157-design.github.io) · [GitHub](https://github.com/shehab6157-design) ·
 [LinkedIn](https://linkedin.com/in/shehab-shibli) · shehab6157@gmail.com

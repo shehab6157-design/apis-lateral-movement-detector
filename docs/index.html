@@ -237,9 +237,9 @@ const SITE = {
   hero: {
     eyebrow: "A lateral-movement, credential-theft &amp; AI-agent detector, evaluated against real government network data",
     title: "Most intrusion detectors are graded on their own homework. <em>This one wasn't.</em>",
-    lede: "APIS learns what's normal for every device, user and AI agent individually, then requires independent evidence to agree before it ever raises an alarm \u2014 modeled on how a honeybee colony defends itself with many imperfect, independent mechanisms rather than one.",
+    lede: "APIS learns what's normal for every device, user and AI agent individually, then requires a suspicious pattern to repeat, or independent signals to agree, before it ever raises an alarm \u2014 modeled on how a honeybee colony defends itself with many imperfect, independent mechanisms rather than one.",
     ctas: [
-      {label:"View the code on GitHub", href:"https://github.com/shehab6157-design", primary:true},
+      {label:"View the code on GitHub", href:"https://github.com/shehab6157-design/apis-lateral-movement-detector", primary:true},
       {label:"See the real results", href:"#results"}
     ],
     legend: [
@@ -248,10 +248,10 @@ const SITE = {
       {cls:"bee", text:"Guard bee \u2014 Layer 1 &amp; 4, live"}
     ],
     proof: {
-      label: "False positives eliminated per real attack still caught \u2014 Los Alamos National Laboratory dataset, network-flow detection",
+      label: "False alarms before and after tuning \u2014 Los Alamos National Laboratory dataset, network-flow detection",
       before: {value:"2,896", num:2896, caption:"false alarms, untuned first pass"},
       after:  {value:"603",   num:603,  caption:"false alarms, after evidence-driven tuning"},
-      foot: "A 79.2% reduction \u2014 while every one of the 13 real attacks in the final result was still correctly caught. The identity-theft detector shows the same 79.0% reduction, measured completely independently."
+      foot: "A 79.2% reduction. The trade-off: correct detections went from 18 to 13, while precision more than tripled (0.62% \u2192 2.11%). The identity-theft detector shows the same 79.0% reduction, measured completely independently."
     }
   },
 
@@ -361,8 +361,8 @@ const SITE = {
     title: "Read the full record",
     body: "Every failed attempt, every real fix, and every number on this page is documented in full \u2014 including the parts that didn't work the first time, and the predictions that turned out wrong.",
     links: [
-      {label:"GitHub", href:"https://github.com/shehab6157-design", primary:true},
-      {label:"Development record", href:"#"}
+      {label:"GitHub", href:"https://github.com/shehab6157-design/apis-lateral-movement-detector", primary:true},
+      {label:"Development record", href:"https://github.com/shehab6157-design/apis-lateral-movement-detector#readme"}
     ],
     meta: "Built by Shehab Shibli \u2014 Network Engineering &amp; Computer Security, Jordan University of Science and Technology"
   }
