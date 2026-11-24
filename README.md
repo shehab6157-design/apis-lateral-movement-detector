@@ -117,7 +117,7 @@ different kinds of suspicious behaviour occurring together.
 | 3 | Alarm Broadcast | Alarm pheromone | Propagates a raw detection to corroborating layers |
 | 4 | Quorum Consensus | Swarm decision-making | No signal confirms alone. Two paths: repetition, or type diversity |
 | 5 | Hygienic Cleanup | Removal of diseased brood | Audits stale, never-re-verified trust relationships |
-| 6 | Containment | Entombment in propolis | Network isolation, webhook and CEF/SIEM export |
+| 6 | Containment | Entombment in propolis | Network isolation, webhook and CEF export to a SIEM |
 | 7 | Chemical Mimicry | Varroa mites faking colony scent | Pass-the-Hash / Pass-the-Ticket: a valid credential that isn't yours |
 | 8 | Collective Overwhelm | The defensive heat ball | Correlates weak signals across unrelated conversations |
 | 9 | Agent Behaviour | A worker with rewritten instructions | AI-agent hijack: legitimate credentials, altered intent |
