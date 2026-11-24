@@ -1,4 +1,4 @@
-# APIS — Adaptive Protective Immune System
+# APIS: Adaptive Protective Immune System
 
 [![tests](https://github.com/shehab6157-design/apis-lateral-movement-detector/actions/workflows/tests.yml/badge.svg)](https://github.com/shehab6157-design/apis-lateral-movement-detector/actions/workflows/tests.yml) ![license](https://img.shields.io/badge/license-MIT-blue) ![python](https://img.shields.io/badge/python-3.9%2B-blue)
 
@@ -7,7 +7,7 @@ government network data** rather than synthetic traffic.
 
 Most intrusion detection projects are demonstrated on data their own author generated.
 This one was measured on the Los Alamos National Laboratory *Comprehensive
-Multi-Source Cyber-Security Events* dataset — 17,684 real computers, 58 days of real
+Multi-Source Cyber-Security Events* dataset: 17,684 real computers, 58 days of real
 enterprise traffic, and a genuine red-team engagement labelled independently by
 someone who had never seen this code.
 
@@ -19,18 +19,18 @@ Every number below is reproducible from the scripts in this repository.
 
 ### Network-flow detection
 
-Three evidence-driven fixes, applied in sequence. Three more were built, measured, and
+Three evidence-driven fixes, applied in sequence, so each row adds one change to the row above. Three more were built, measured, and
 reverted when the numbers got worse.
 
 | Stage | False positives | True positives | Precision |
 |---|---:|---:|---:|
 | Original, untuned | 2,896 | 18 | 0.62% |
-| + personalised repetition threshold | 1,337 | 18 | 1.33% |
-| + unreliable signal excluded from confirmation | 837 | 13 | 1.53% |
-| + extended clean training window | **603** | 13 | **2.11%** |
+| Personalised repetition threshold added | 1,337 | 18 | 1.33% |
+| Unreliable signal excluded from confirmation | 837 | 13 | 1.53% |
+| Clean training window extended | **603** | 13 | **2.11%** |
 
 **79.2% fewer false positives.** The trade-off is stated plainly: correct detections went from 18 to 13, while
-precision more than tripled (0.62% → 2.11%).
+precision more than tripled, from 0.62% to 2.11%.
 
 ### Identity and credential-theft detection
 
@@ -41,9 +41,9 @@ the highest-reach accounts deserve the *least* benefit of the doubt.
 | Stage | False positives | True positives | Detection rate |
 |---|---:|---:|---:|
 | Original, untuned | 38,131 | 168 | 97.1% |
-| + machine-account noise excluded | 22,477 | 168 | 97.1% |
-| + per-user known-destination baseline | 7,824 | 143 | 82.7% |
-| + privilege-aware threshold | **7,991** | 166 | **96.0%** |
+| Machine-account noise excluded | 22,477 | 168 | 97.1% |
+| Per-user known-destination baseline added | 7,824 | 143 | 82.7% |
+| Privilege-aware threshold added | **7,991** | 166 | **96.0%** |
 
 **79.0% fewer false positives**, measured completely independently of the flow side.
 
@@ -53,22 +53,22 @@ the highest-reach accounts deserve the *least* benefit of the doubt.
 |---|---:|---:|---:|
 | Precision | 2.11% | 2.03% | **40.0%** |
 
-Roughly a **19× precision improvement** when two structurally independent domains
+Roughly **19 times better precision** when two structurally independent domains
 corroborate each other.
 
 ### AI-agent detection (Layer 9)
 
-Detects AI agents hijacked by indirect prompt injection — legitimate credentials,
+Detects AI agents hijacked by indirect prompt injection: legitimate credentials,
 altered intent. Evaluated on **576 real AI-agent tool calls** across 99 sessions and
 three different workloads.
 
 | Corpus | Untrusted inputs | False positives | Pivot signal in FPs |
 |---|---:|---:|---|
-| 484 calls — coding only | 5 | 1 / 194 (0.5%) | 0 |
-| 510 calls — research added | 22 | 7 / 204 (3.4%) | **4 — rule falsified** |
-| 576 calls — fresh research sessions | 56 | **5 / 231 (2.2%)** | **0 — rule rebuilt** |
+| 484 calls, coding only | 5 | 1 / 194 (0.5%) | 0 |
+| 510 calls, research added | 22 | 7 / 204 (3.4%) | **4, rule falsified** |
+| 576 calls, fresh research sessions | 56 | **5 / 231 (2.2%)** | **0, rule rebuilt** |
 
-**Read the middle row first — it is the most important result in this repository.**
+**Read the middle row first. It is the most important result in this repository.**
 
 The original rule passed its first evaluation with zero false positives. But it had
 only *five* opportunities to fire wrongly. When the agent's workload changed from
@@ -79,10 +79,10 @@ The cause was structural, not a threshold: the rule assumed agents read outward 
 write inward. That holds for a coding agent and breaks for a research agent, which
 legitimately writes outward too.
 
-It was rebuilt around a different distinction — **where a write lands relative to what
+It was rebuilt around a different distinction: **where a write lands relative to what
 was just read**. Writing beside the file you just read is summarisation; writing
 somewhere unrelated is exfiltration. Then it was validated on **20 sessions generated
-after the change**, with 56 untrusted inputs — eleven times the original sample — and
+after the change**, with 56 untrusted inputs, eleven times the original sample, and
 held.
 
 A result that survives a thin sample is not a result. This one was falsified, rebuilt
@@ -97,7 +97,7 @@ of what belongs, alarm pheromones, quorum decisions, hygienic removal, entombmen
 what cannot be removed, and a collective heat response. None is individually reliable.
 Together they are extremely hard to walk past.
 
-That is a better model for intrusion detection than any single clever rule — and it
+That is a better model for intrusion detection than any single clever rule, and it
 produces one hard architectural constraint that runs through the whole system:
 
 > **No single anomaly signal is ever actionable on its own.**
@@ -129,18 +129,18 @@ different kinds of suspicious behaviour occurring together.
 An adaptive detector is a target. Each of these responds to a documented real-world
 technique.
 
-- **Flood evasion (MITRE T1562)** — a live adversarial test with 50 decoys hiding one
+- **Flood evasion (MITRE T1562):** a live adversarial test with 50 decoys hiding one
   real attack. The first two fixes failed; the final version separated the real attack
   from 48 of 50 decoys using rarity-based discrimination.
-- **Tamper-evident audit trail (EU AI Act, Article 12)** — every confirmed decision is
+- **Tamper-evident audit trail (EU AI Act, Article 12):** every confirmed decision is
   SHA-256 hash-chained. A record edited by hand was detected and located to the exact
   entry.
-- **Gradual poisoning ("boiling frog")** — 60 rows of traffic, each individually under
+- **Gradual poisoning ("boiling frog"):** 60 rows of traffic, each individually under
   every threshold, climbing 67% in one direction. Invisible to every other layer;
   caught by this one.
-- **Agent hijack (MITRE ATLAS AML.T0051.001)** — indirect prompt injection detection,
+- **Agent hijack (MITRE ATLAS AML.T0051.001):** indirect prompt injection detection,
   falsified and rebuilt as described above.
-- **Poisoning-safe learning** — the baseline only ever learns from traffic confirmed
+- **Poisoning-safe learning:** the baseline only ever learns from traffic confirmed
   safe: zero raw signals, or a human-reviewed suppression. A confirmed, unsuppressed
   detection is never fed back.
 
@@ -176,7 +176,7 @@ python verify_audit_trail.py
 
 Expected: a confirmation on `10.0.2.10` (MITRE T1018), on `C199 -> C101`
 (T1550.002, Pass-the-Hash), and two on the hijacked agent
-(ATLAS AML.T0051.001 and AML.T0086) — with the audit chain intact.
+(ATLAS AML.T0051.001 and AML.T0086), with the audit chain intact.
 
 **If you get no detections,** the adaptive baselines have learned from a
 previous run and are resuming that state. That is correct behaviour, not a
@@ -216,7 +216,7 @@ python -m pytest test_apis.py test_adaptive_integration.py test_auth_detector.py
 ```
 
 **236 tests**, including adversarial scenarios and tests that assert the system's
-*documented failures* — so a future change that silently breaks detection is caught.
+*documented failures*, so a future change that silently breaks detection is caught.
 
 ---
 
@@ -229,16 +229,16 @@ in production.
 **Scope of evaluation**
 - Scoped to verified-clean training days and the highest-attack-density day of the
   dataset, not all 58 days.
-- Network-flow extraction is scoped to the ~305 computers that appear in any labelled
+- Network-flow extraction is scoped to the roughly 305 computers that appear in any labelled
   red-team event, not all 17,684 computers in the dataset.
 - 2.11% precision is a large improvement over 0.62%, not a solved problem. Published
   research treats lateral-movement detection as a genuinely hard, open class of
   problem, and these numbers are consistent with that.
 
-**Known evasions — measured, reproducible, and left in the test suite**
+**Known evasions: measured, reproducible, and left in the test suite**
 - **Read-only reconnaissance pivot.** An agent that reads sensitive targets but never
   acts outward is not caught. This is the direct cost of the refinement that made the
-  signal usable at all; catching it required a threshold that produced 20–28 false
+  signal usable at all; catching it required a threshold that produced 20 to 28 false
   positives on real benign traffic.
 - **Poisoned file inside the agent's own workspace.** Trust is location-relative, so a
   file already inside the workspace raises no suspicion. Closing this needs a
@@ -255,7 +255,7 @@ catching them, the tests fail and the documentation gets corrected.
 **Thresholds are workload-dependent, not universal**
 - Layer 8's agent threshold was calibrated on coding traffic, then degraded the moment
   the agent's job changed, and had to be recalibrated against real data. A threshold is
-  a property of the workload it was measured on — that lesson is written into the code
+  a property of the workload it was measured on. That lesson is written into the code
   beside the number.
 
 **Approaches that were built and reverted**
@@ -267,7 +267,7 @@ catching them, the tests fail and the documentation gets corrected.
 
 ## Data
 
-The LANL dataset is not included in this repository — it is ~8 GB and not mine to
+The LANL dataset is not included in this repository. It is about 8 GB and not mine to
 redistribute. It is publicly available from Los Alamos National Laboratory:
 <https://csr.lanl.gov/data/cyber1/>
 
@@ -281,6 +281,6 @@ demonstrate that it works; they do not reproduce the numbers above.
 
 ## Built by
 
-**Shehab Shibli** — B.Sc. Network Engineering and Computer Security
-[Portfolio](https://shehab6157-design.github.io) · [GitHub](https://github.com/shehab6157-design) ·
-[LinkedIn](https://linkedin.com/in/shehab-shibli) · shehab6157@gmail.com
+**Shehab Shibli**, B.Sc. Network Engineering and Computer Security
+[Portfolio](https://shehab6157-design.github.io), [GitHub](https://github.com/shehab6157-design),
+[LinkedIn](https://linkedin.com/in/shehab-shibli) and shehab6157@gmail.com
